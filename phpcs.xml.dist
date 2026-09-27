@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Perxel Example">
-	<description>Coding standards for the Perxel Example plugin.</description>
+<ruleset name="Perxel TinyMCE Accordion">
+	<description>Coding standards for the Perxel TinyMCE Accordion plugin.</description>
 
 	<file>.</file>
 
@@ -53,16 +53,11 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="pxex"/>
-				<element value="PXEX"/>
+				<element value="pxta"/>
+				<element value="PXTA"/>
 				<!-- Namespace root = slug in Ucfirst_Snake form, so Plugin Check
 				     (which does not read this file) accepts it too. -->
-				<element value="Perxel_Example"/>
-				<!-- Shared admin-UI kit (vendor/perxel-ui/), versioned independently. -->
-				<element value="perxel_ui"/>
-				<element value="PERXEL_UI"/>
-				<element value="Perxel_UI"/>
-				<element value="pxui"/>
+				<element value="Perxel_Tinymce_Accordion"/>
 			</property>
 		</properties>
 	</rule>
@@ -106,21 +101,19 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="perxel-example"/>
+				<element value="perxel-tinymce-accordion"/>
 			</property>
 		</properties>
 	</rule>
 
 	<!--
-		Procedural scripts and view templates: top-level / include-scope
-		variables read by a static analyser as globals, but they are not.
+		Procedural scripts: top-level variables read by a static analyser as
+		globals, but they are not.
 	-->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
-		<exclude-pattern>/includes/views/*</exclude-pattern>
 		<exclude-pattern>/uninstall.php</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.WP.GlobalVariablesOverride.Prohibited">
-		<exclude-pattern>/includes/views/*</exclude-pattern>
 		<exclude-pattern>/uninstall.php</exclude-pattern>
 	</rule>
 </ruleset>

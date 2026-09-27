@@ -1,6 +1,6 @@
 {
-	"name": "perxel/perxel-example",
-	"description": "A short description of what this plugin does.",
+	"name": "perxel/perxel-tinymce-accordion",
+	"description": "Adds an \"Insert Accordion\" button to the classic TinyMCE editor and renders it on the front end as a native <details>/<summary> accordion.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
