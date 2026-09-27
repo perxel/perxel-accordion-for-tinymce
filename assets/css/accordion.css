@@ -34,6 +34,13 @@
 	transition: transform 0.15s ease;
 }
 
+/* A title_tag element keeps its own font size but sits on the arrow's line. */
+.pxta-accordion__title {
+	display: inline;
+	margin: 0;
+	vertical-align: middle;
+}
+
 .pxta-accordion[open] summary::before {
 	transform: rotate(180deg);
 }

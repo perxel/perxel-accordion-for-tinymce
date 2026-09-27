@@ -2,6 +2,10 @@
  * Admin styles for the "Insert Accordion" dialog. Everything is scoped under
  * .pxta-accordion-dialog, which editor.js adds to the dialog's inner wrapper.
  */
+.pxta-accordion-dialog .mce-top-part::before {display:none;}
+.pxta-accordion-dialog div.mce-toolbar-grp {
+	border:none;
+}
 
 /* Keeps the footer (Save/Cancel) reachable when the content outgrows a short screen. */
 .pxta-accordion-dialog .mce-window-body {

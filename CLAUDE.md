@@ -89,7 +89,9 @@ them.
 - **`Plugin`** - singleton. `boot()` instantiates `Shortcode` and `Editor` and
   calls `register()` on each.
 - **`Shortcode`** - registers `[pxta_accordion]`, renders the `<details>` HTML
-  through the `pxta_accordion_html` filter, and enqueues `assets/css/accordion.css`
+  through the `pxta_accordion_html` filter (optional `title_tag` wraps the
+  title inside `<summary>`; the allow-list `Shortcode::TITLE_TAGS` is mirrored
+  by `TITLE_TAGS` in `editor.js`), and enqueues `assets/css/accordion.css`
   unless `pxta_accordion_load_css` returns false.
 - **`Editor`** - appends the `pxta_accordion` button to `mce_buttons`,
   registers `assets/js/editor.js` via `mce_external_plugins`, and adds

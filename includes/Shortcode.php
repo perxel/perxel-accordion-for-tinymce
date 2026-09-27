@@ -21,6 +21,12 @@ class Shortcode {
 	 */
 	const CSS = 'assets/css/accordion.css';
 
+	/**
+	 * Tags the title may be wrapped in inside <summary> (the title_tag
+	 * attribute); keep in sync with TITLE_TAGS in assets/js/editor.js.
+	 */
+	const TITLE_TAGS = array( 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div' );
+
 	public function register() {
 		add_shortcode( self::TAG, array( $this, 'render' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
@@ -32,11 +38,26 @@ class Shortcode {
 	 * @return string
 	 */
 	public function render( $atts, $content = null ) {
-		$atts = shortcode_atts( array( 'title' => '' ), $atts, self::TAG );
+		$atts = shortcode_atts(
+			array(
+				'title'     => '',
+				'title_tag' => '',
+			),
+			$atts,
+			self::TAG
+		);
+
+		$tag = strtolower( (string) $atts['title_tag'] );
+
+		if ( in_array( $tag, self::TITLE_TAGS, true ) ) {
+			$title = sprintf( '<%1$s class="pxta-accordion__title">%2$s</%1$s>', tag_escape( $tag ), esc_html( $atts['title'] ) );
+		} else {
+			$title = esc_html( $atts['title'] );
+		}
 
 		$html = sprintf(
 			'<details class="pxta-accordion"><summary>%s</summary><div class="pxta-accordion__content">%s</div></details>',
-			esc_html( $atts['title'] ),
+			$title,
 			do_shortcode( (string) $content )
 		);
 

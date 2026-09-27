@@ -45,6 +45,13 @@ page built from shortcodes:
 [pxta_accordion title="What does it cost?"]Nothing at all - it is free.[/pxta_accordion]
 ```
 
+To wrap the title in a heading or paragraph, add `title_tag` (one of `p`,
+`h1`-`h6`, `div`):
+
+```
+[pxta_accordion title="What does it cost?" title_tag="h3"]Nothing at all - it is free.[/pxta_accordion]
+```
+
 == External services ==
 
 This plugin does not connect to any external services.
