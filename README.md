@@ -1,100 +1,75 @@
-# wp-plugin-starter
+# Perxel TinyMCE Accordion
 
-A GitHub **template repository** for a Perxel WordPress plugin. It ships the
-house layout every Perxel plugin shares - a namespaced, autoloaded codebase, the
-[`perxel/wp-plugin-ui`](https://github.com/perxel/wp-plugin-ui) admin kit wired
-in, PHPCS + WordPress Plugin Check in CI, and a release workflow that builds the
-installable zip and deploys to WordPress.org.
+Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as a native `<details>`/`<summary>` accordion.
 
-Out of the box it is a working plugin: activate it and **Tools -> Perxel
-Example** shows a Settings screen (a text field + a toggle, saved through
-`admin-post`) rendered in the shared UI layout, plus a hidden maintainer-only
-"Perxel UI" component showcase.
+The classic editor has no built-in way to add a collapsible "read more" section to a post. This plugin puts a button in the editor toolbar that inserts an accordion as a plain shortcode, so it stays readable and re-editable in your content.
 
-## Creating a new plugin from it
+- [Download the latest release](https://github.com/perxel/wp-tinymce-accordion/releases)
+- Report an issue: [github.com/perxel/wp-tinymce-accordion](https://github.com/perxel/wp-tinymce-accordion)
 
-### 1. Use this template
+## What you get
 
-On GitHub: **Use this template -> Create a new repository**, named
-`wp-<something>` under `perxel/`. Clone it.
+- An **Insert Accordion** button in the classic editor toolbar, with a dialog for the title and the body text.
+- A live preview of each accordion in the Visual tab, and the plain `[pxta_accordion]` shortcode in the Text tab.
+- Front-end accordions built on native `<details>`/`<summary>` - they open and close with no JavaScript.
+- A small default stylesheet (arrow indicator, spacing, borders) that your theme can restyle or switch off entirely.
+- Two filters for developers: `pxta_accordion_html` to replace the rendered HTML, and `pxta_accordion_load_css` to stop the default stylesheet from loading.
 
-### 2. Replace the placeholder tokens
+The button shows up in the post and page editor, the widget editors, and any Advanced Custom Fields WYSIWYG field whose toolbar is set to **Full**. There is no settings screen and nothing to configure.
 
-There is no build step - personalising is a find-and-replace across the tree.
-Every placeholder is one of these six tokens. Replace them **case-sensitively**,
-`Perxel_Example` before `Perxel Example`:
+## Screenshots
 
-| Token | What it is | Example value |
-|---|---|---|
-| `Perxel_Example` | PHP namespace root **and** `@package` tag - keep it `Ucfirst_Snake` of the slug so Plugin Check accepts it as the prefix | `Perxel_Seo_Helper` |
-| `Perxel Example` | Display name (`Plugin Name` header, `PXEX_NAME`) | `Perxel SEO Helper` |
-| `perxel-example` | Slug = text domain = wordpress.org slug | `perxel-seo-helper` |
-| `wp-example` | GitHub repo name (Plugin URI, links) | `wp-seo-helper` |
-| `PXEX` | Uppercase constant / hook prefix | `PXSH` |
-| `pxex` | Lowercase hook / option / CSS-class prefix | `pxsh` |
+1. The **Accordion** button in the classic editor toolbar, and the dialog it opens for the title and body text.
+2. The accordion on a published post, with the first item open and the second one closed.
 
-One-liner (macOS `sed`; drop the `''` after `-i` on Linux) - edit the six
-replacement values first:
+<!-- The listing art referenced by these captions lives in .wordpress-org/ - see the README there. -->
 
-```sh
-git grep -lZ -e 'Perxel_Example' -e 'Perxel Example' \
-             -e 'perxel-example' -e 'wp-example' -e 'PXEX' -e 'pxex' \
-| xargs -0 sed -i '' \
-  -e 's/Perxel_Example/Perxel_Seo_Helper/g' \
-  -e 's/Perxel Example/Perxel SEO Helper/g' \
-  -e 's/perxel-example/perxel-seo-helper/g' \
-  -e 's/wp-example/wp-seo-helper/g' \
-  -e 's/PXEX/PXSH/g' \
-  -e 's/pxex/pxsh/g'
+## Installation
+
+1. In the WordPress admin go to **Plugins -> Add New -> Upload Plugin**, choose the `perxel-tinymce-accordion.zip` file and click **Install Now**. Alternatively, copy the `perxel-tinymce-accordion` folder into `wp-content/plugins/` and install it from the **Plugins** screen.
+2. Click **Activate**.
+3. Open a post or page in the classic editor - the **Accordion** button is now in the toolbar, at the end of the first row.
+
+## Requirements
+
+- WordPress 6.5 or newer
+- PHP 7.4 or newer
+- The classic (TinyMCE) editor for the toolbar button. The shortcode itself renders anywhere shortcodes are processed.
+
+## Using the shortcode
+
+The editor button is just a convenience - the accordion is a normal shortcode, so you can paste it into a Shortcode block, a widget, or a template:
+
+```
+[pxta_accordion title="What does it cost?"]Nothing at all - it is free.[/pxta_accordion]
 ```
 
-Then rename the two slug-named files:
+## Frequently asked questions
 
-```sh
-git mv perxel-example.php perxel-seo-helper.php
-git mv languages/perxel-example.pot languages/perxel-seo-helper.pot
-```
+### Why is the button missing from my ACF field?
 
-### 3. Fill in the free text
+The button is added to the classic TinyMCE editor, and ACF only offers it to WYSIWYG fields whose **Toolbar** setting is **Full**. With the "Basic" toolbar ACF uses a fixed button list that no plugin can extend, so switch the field's toolbar to Full and reload the field.
 
-Search for **`A short description of what this plugin does.`** (main file header,
-`composer.json`, `readme.txt`) and write the real one-liner. Then work through
-`readme.txt` - `Contributors`, `Tags`, `Tested up to`, Description, FAQ,
-Screenshots, and the External services section (delete it if the plugin calls
-nothing third-party) - and replace this README with the plugin's own (public-facing only - see
-`CLAUDE.md` -> "Documentation rules").
+### Does it work in the block editor?
 
-### 4. Vendor the UI kit
+The button itself is a classic TinyMCE plugin, so it shows up in the classic editor and in any classic-editor widget. The `[pxta_accordion]` shortcode still renders anywhere shortcodes are processed, so you can also insert it from a Shortcode block or from a template.
 
-```sh
-bin/update-ui.sh 0.23.0        # newest tag at github.com/perxel/wp-plugin-ui
-```
+### Do the accordions need JavaScript?
 
-Set that same version in the main file's `Perxel_UI_Loader::register( '0.23.0',
-... )` call - it is what the "highest version wins" loader compares. (The plugin
-still activates without this step - it just shows a "UI library could not be
-loaded" notice until the kit is vendored.)
+No. They are native `<details>`/`<summary>` elements, which browsers open and close on their own. The plugin loads only a small stylesheet on the front end - no JavaScript is enqueued there.
 
-### 5. Wire up the repo
+### Can I change the look of the accordion?
 
-- `composer install` - pulls PHPCS + the WordPress standard.
-- `php -l <mainfile>.php && composer run lint` - both must be green.
-- CI runs the official WordPress Plugin Check on the built zip; see the
-  "WordPress.org / Plugin Check compliance" table in `CLAUDE.md` for the rules
-  it enforces.
-- `composer run build` - produces the installable zip in `dist/`.
-- Reserve the slug at <https://wordpress.org/plugins/developers/add/> (the first
-  submission is a manual review).
-- After the .org review is approved: give the repo access to the org secrets
-  **`SVN_USERNAME`** / **`SVN_PASSWORD`** (or add them as repo secrets), set the
-  repo variable **`DEPLOY_TO_WPORG`** = `true`, run **Actions -> Release -> Run
-  workflow** once with `dry_run` on to check the staging, then publish a Release
-  - `release.yml` deploys it (details in `CLAUDE.md` -> Releasing). Not going on
-  .org? Delete the `deploy` job.
-- Add the real listing art to `.wordpress-org/` (see the README there), then
-  delete that README.
+Yes, in three ways. Style `.pxta-accordion` and `.pxta-accordion__content` in your theme, return `false` from the `pxta_accordion_load_css` filter to skip the default stylesheet completely, or return your own markup from the `pxta_accordion_html` filter to replace the `<details>` output.
 
-### 6. Delete this section
+### What happens to my data if I delete the plugin?
 
-Once the new repo builds green, remove "Creating a new plugin from it" from its
-README.
+This plugin stores no settings and creates no database tables, so there is nothing to clean up. The `[pxta_accordion]` shortcodes already inside your posts are left untouched - they simply stop being rendered once the plugin is gone.
+
+## Data and external services
+
+This plugin stores no settings and creates no database tables, and it does not contact any external service. It sends nothing off your site and adds no tracking. Deleting it removes only its own files.
+
+## License
+
+GPL-2.0-or-later. See [LICENSE](LICENSE).
