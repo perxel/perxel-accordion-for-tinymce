@@ -16,7 +16,26 @@ class Editor {
 	public function register() {
 		add_filter( 'mce_buttons', array( $this, 'add_button' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_plugin' ) );
+		add_filter( 'mce_css', array( $this, 'add_editor_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * Loads the accordion stylesheet inside the TinyMCE iframe, so the
+	 * wp.mce.views preview is styled exactly like the front end. The insert
+	 * dialog's nested editor reuses `content_css`, so it gets it too.
+	 *
+	 * @param string $mce_css Comma-separated stylesheet URLs.
+	 * @return string
+	 */
+	public function add_editor_css( $mce_css ) {
+		if ( ! Shortcode::load_css() ) {
+			return $mce_css;
+		}
+
+		$url = add_query_arg( 'ver', Shortcode::css_version(), PXTA_URL . '/' . Shortcode::CSS );
+
+		return $mce_css ? $mce_css . ',' . $url : $url;
 	}
 
 	/**

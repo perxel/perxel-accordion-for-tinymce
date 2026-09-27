@@ -14,6 +14,13 @@ class Shortcode {
 
 	const TAG = 'pxta_accordion';
 
+	/**
+	 * The default accordion stylesheet, relative to the plugin root. Loaded
+	 * on the front end and inside the classic editor (see Editor::add_editor_css()),
+	 * so the Visual tab preview matches the published page.
+	 */
+	const CSS = 'assets/css/accordion.css';
+
 	public function register() {
 		add_shortcode( self::TAG, array( $this, 'render' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
@@ -45,23 +52,35 @@ class Shortcode {
 	}
 
 	public function assets() {
-		/**
-		 * Whether to load the plugin's default accordion stylesheet. Return
-		 * false to style the accordion entirely from the theme.
-		 *
-		 * @param bool $load_css Whether to enqueue the default stylesheet.
-		 */
-		if ( ! apply_filters( 'pxta_accordion_load_css', true ) ) {
+		if ( ! self::load_css() ) {
 			return;
 		}
 
-		$css = PXTA_DIR . '/assets/css/frontend.css';
+		wp_enqueue_style( 'pxta-accordion', PXTA_URL . '/' . self::CSS, array(), self::css_version() );
+	}
 
-		wp_enqueue_style(
-			'pxta-accordion',
-			PXTA_URL . '/assets/css/frontend.css',
-			array(),
-			file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION
-		);
+	/**
+	 * Whether to load the default stylesheet, on the front end and in the editor.
+	 *
+	 * @return bool
+	 */
+	public static function load_css() {
+		/**
+		 * Whether to load the plugin's default accordion stylesheet (front end
+		 * and editor). Return false to style the accordion entirely from the
+		 * theme.
+		 *
+		 * @param bool $load_css Whether to load the default stylesheet.
+		 */
+		return (bool) apply_filters( 'pxta_accordion_load_css', true );
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function css_version() {
+		$css = PXTA_DIR . '/' . self::CSS;
+
+		return file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION;
 	}
 }
