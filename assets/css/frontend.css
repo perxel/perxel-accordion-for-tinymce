@@ -1,0 +1,51 @@
+.pxta-accordion {
+	background: #fafafa;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+	margin: 1em 0;
+	overflow: hidden;
+}
+
+.pxta-accordion summary {
+	cursor: pointer;
+	padding: 0.75rem 1rem;
+	font-weight: 600;
+	list-style: none;
+}
+
+.pxta-accordion summary::-webkit-details-marker {
+	display: none;
+}
+
+.pxta-accordion summary::marker {
+	content: "";
+}
+
+.pxta-accordion summary::before {
+	content: "";
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 7px solid #666;
+	margin-right: 0.625rem;
+	vertical-align: middle;
+	transition: transform 0.15s ease;
+}
+
+.pxta-accordion[open] summary::before {
+	transform: rotate(180deg);
+}
+
+.pxta-accordion__content {
+	padding: 0 1rem 1rem;
+}
+
+.pxta-accordion__content > *:first-child {
+	margin-top: 0.5rem;
+}
+
+.pxta-accordion__content > *:last-child {
+	margin-bottom: 0;
+}

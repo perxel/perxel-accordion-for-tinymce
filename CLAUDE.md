@@ -5,14 +5,23 @@ document (see "Documentation rules" below).
 
 ## What this is
 
-`perxel-example` - a **public** WordPress plugin (repo
-`github.com/perxel/wp-example`, WordPress.org slug `perxel-example`,
+`perxel-tinymce-accordion` - a **public** WordPress plugin (repo
+`github.com/perxel/wp-tinymce-accordion`, WordPress.org slug `perxel-tinymce-accordion`,
 published under the `phucbm` .org account, branded Perxel).
 
 It was scaffolded from
-[`perxel/wp-plugin-starter`](https://github.com/perxel/wp-plugin-starter). If
-this file still says "perxel-example" / "PXEX" / "Example", the
-template tokens have not been replaced yet - see the starter README.
+[`perxel/wp-plugin-starter`](https://github.com/perxel/wp-plugin-starter).
+
+Adds an "Insert Accordion" button to the classic TinyMCE editor (main post
+editor, widget editors, ACF WYSIWYG fields set to "Toolbar: Full"). Clicking it
+inserts a `[pxta_accordion]` shortcode; the Visual tab renders a live preview
+via `wp.mce.views`, the Text tab shows the raw shortcode. On the front end a
+PHP shortcode handler renders `<details>/<summary>` HTML with a small default
+stylesheet - no JS is enqueued on the front end (`<details>` is native).
+
+This is a custom TinyMCE-4-compatible plugin, not TinyMCE's own built-in
+`accordion` plugin - that one requires TinyMCE 6+, and WordPress classic editor
+bundles TinyMCE 4.x.
 
 **Upstream rule:** the starter is the source of truth for shared process - CI,
 release/deploy, WordPress.org compliance rules, `.distignore`, build scripts, and
@@ -45,123 +54,72 @@ Every Perxel plugin follows these; they are owned by the starter.
 ## Layout
 
 ```
-perxel-example.php      Main file: header, constants, autoloader, UI-kit loader, boot
-uninstall.php               Deletes the option (and any custom tables) on delete
-includes/*.php              One PSR-4-ish class per concern, namespace Perxel_Example\
-includes/views/*.php        Dumb admin templates, fed vars by the screen classes
-assets/css, assets/js       Admin-only CSS/JS (plugin-specific; layout comes from the kit)
-vendor/perxel-ui/           Shared admin-UI kit - vendored, see below
-languages/                  .pot template
-readme.txt                  WordPress.org listing (keep in sync with README.md + version)
-README.md                   Public-facing GitHub page only (see "Documentation rules")
-bin/                        build-zip.sh, update-ui.sh - identical in every plugin
-.wordpress-org/             Listing assets (icon, banner, screenshots) - not shipped
-.claude/assets-src/         Master/source art for the listing assets - committed, not shipped
-.github/workflows/          lint.yml (PHPCS + Plugin Check), release.yml
+perxel-tinymce-accordion.php   Main file: header, constants, autoloader, boot
+uninstall.php                  No-op - the plugin stores no options and no custom tables
+includes/Plugin.php            Singleton, boot() wires Shortcode + Editor
+includes/Shortcode.php         add_shortcode(), the pxta_accordion_html filter,
+                                asset enqueue + the pxta_accordion_load_css filter
+includes/Editor.php            mce_buttons / mce_external_plugins filters,
+                                scopes registration to editors with a rich toolbar
+assets/js/editor.js            TinyMCE 4 plugin: button + dialog that inserts the
+                                shortcode, and the wp.mce.views live-preview registration
+assets/css/frontend.css        Default details/summary styling (no JS)
+languages/                     .pot template
+readme.txt                     WordPress.org listing (keep in sync with README.md + version)
+README.md                      Public-facing GitHub page only (see "Documentation rules")
+bin/                            build-zip.sh, update-ui.sh - identical in every plugin
+.wordpress-org/                 Listing assets (icon, banner, screenshots) - not shipped
+.claude/assets-src/             Master/source art for the listing assets - committed, not shipped
+.github/workflows/              lint.yml (PHPCS + Plugin Check), release.yml
 ```
 
 `includes/` is loaded by the `spl_autoload_register` in the main file (not
 Composer). `Plugin::instance()->boot()` runs on `plugins_loaded` and wires
-`Admin`.
+`Shortcode` and `Editor`.
+
+No custom DB table, no admin settings screen, no REST/AJAX endpoint, and the
+`vendor/perxel-ui/` kit is not vendored - nothing in this plugin needs any of
+them.
 
 ## Architecture
 
-- **`Plugin`** - singleton. `boot()` wires the admin surface; `activate()` is
-  the activation hook (seed options, create tables).
-- **`Admin`** - owns the menu (one `Tools ->` screen), the shared layout args,
-  asset loading, and the plain-form / `admin-post` handlers. Each screen is a
-  `render_*()` method + a view under `includes/views/`; heavier per-screen logic
-  goes in its own class.
-- **`Settings`** - the one option (`PXEX_OPTION_KEY`), read through typed
-  accessors, written through `update()` / `sanitize()`. Never call
-  `get_option()` for it directly elsewhere.
+- **`Plugin`** - singleton. `boot()` instantiates `Shortcode` and `Editor` and
+  calls `register()` on each.
+- **`Shortcode`** - registers `[pxta_accordion]`, renders the `<details>` HTML
+  through the `pxta_accordion_html` filter, and enqueues `assets/css/frontend.css`
+  unless `pxta_accordion_load_css` returns false.
+- **`Editor`** - appends the `pxta_accordion` button to `mce_buttons` and
+  registers `assets/js/editor.js` via `mce_external_plugins`. These filters are
+  global by design (so ACF "Full" WYSIWYG fields, widget editors, etc. all pick
+  it up) - do not scope by `$editor_id` unless testing turns up a conflict.
 
-### Custom tables
-
-The template ships none. When you add them:
-
-- One `includes/Db.php` for schema (`dbDelta` on `Plugin::activate()`, a stored
-  `pxex_db_version` option, `Db::maybe_upgrade()` on `init`), and one repository
-  class that is the *only* code touching the tables.
-- **Bind the table name with the `%i` placeholder - never concatenate it.**
-  `%i` needs WP 6.2+ (the template's floor is already 6.5).
-
-  ```php
-  // Right:
-  $wpdb->get_results(
-      $wpdb->prepare( 'SELECT * FROM %i WHERE run_id = %d', Db::items(), $run_id ),
-      ARRAY_A
-  );
-  // Wrong - WordPress.DB.PreparedSQL.NotPrepared (error-level, blocks .org):
-  $wpdb->get_results( "SELECT * FROM {$table} WHERE run_id = {$run_id}" );
-  ```
-
-- A `SELECT` with only the table (no other args) still goes through
-  `prepare()`: `$wpdb->prepare( 'SELECT COUNT(*) FROM %i', Db::runs() )`.
-- `DROP TABLE`: `$wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table )`.
-- Direct `$wpdb` on your own table is expected; annotate the call:
-  `// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- <reason>`.
-  `dbDelta()` CREATE and uninstall DROP add `WordPress.DB.DirectDatabaseQuery.SchemaChange`.
-- A dynamic `IN (...)` list is the one case with no clean placeholder: build it
-  with `implode( ', ', array_fill( 0, count( $ids ), '%d' ) )` and wrap that one
-  statement in `// phpcs:disable ... WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber` / `// phpcs:enable`.
-- Uncomment the `WordPress.DB.DirectDatabaseQuery` block in `phpcs.xml.dist`.
-- Don't put a bare SQL keyword like `'create'` as a column *value* inside a
-  `$wpdb->insert()`/`update()` call - PHPCS reads it as DDL. Assign it to a
-  variable first.
+This plugin has no custom DB table (see the starter's `CLAUDE.md` for the
+`%i`-placeholder rules if one is ever added).
 
 ## Conventions
 
-- **Namespace** `Perxel_Example\` - the slug (`perxel-example`) in
+- **Namespace** `Perxel_Tinymce_Accordion\` - the slug (`perxel-tinymce-accordion`) in
   `Ucfirst_Snake` form, so `WordPress.NamingConventions.PrefixAllGlobals`
   accepts it as the plugin prefix (Plugin Check does not read `phpcs.xml.dist`,
   so a `Vendor\Package`-style namespace would be flagged there). Sub-namespaces
-  are fine (`Perxel_Example\Admin\Foo` -> `includes/Admin/Foo.php`). Hooks,
-  option keys and CSS classes stay `pxex_` / `pxex-`; constants `PXEX_`. Product
-  name is the constant `PXEX_NAME` (no rebrand option).
-- **Text domain** `perxel-example` (= the slug). JS i18n via `wp.i18n`
-  (`wp_set_script_translations`); script deps include `wp-i18n`.
+  are fine (`Perxel_Tinymce_Accordion\Admin\Foo` -> `includes/Admin/Foo.php`). Hooks,
+  option keys and CSS classes stay `pxta_` / `pxta-`; constants `PXTA_`. Product
+  name is the constant `PXTA_NAME` (no rebrand option).
+- **Text domain** `perxel-tinymce-accordion` (= the slug). No JS strings need
+  `wp.i18n` here - `editor.js`'s button/dialog labels are short and in English
+  only for now; add `wp_set_script_translations()` if that changes.
 - **Escape at output, no blanket suppressions.** Never `phpcs:disable` a
   `WordPress.Security.*` sniff (EscapeOutput, NonceVerification) for a file or
   block - the WordPress.org review bot flags it as an escaping/nonce failure
-  even when every value is escaped. **Escape late**: kit markup is echoed
-  through `Admin::kit( \Perxel_UI::rows( ... ) )`, i.e.
-  `echo wp_kses( $html, \Perxel_UI::allowed_html() )`; any other built HTML gets
-  its own `wp_kses( $html, <narrow allowlist> )`. Never an `EscapeOutput`
-  suppression, not even per line - the 2026-09-23 review of perxel-ai-translate
-  rejected `echo $html; // phpcs:ignore ... escaped earlier`. No inline `on*`
-  handlers in kit markup (kses strips them) - wire them in JS. Read-only
-  `$_GET` flags get a per-line `NonceVerification.Recommended` ignore.
-  `composer run lint` runs `bin/check-suppressions.sh`, which fails on blanket
-  `WordPress.Security` disables and on any `EscapeOutput` suppression.
-- Admin screens render inside `Perxel_UI_Layout::open()/close()` via
-  `Admin::screen()`, which falls back to a plain notice if the kit is not
-  vendored. Use the kit components (`rows()`, `notice()`, `toggle()`, `code()`,
-  `meter()`, `progress_bar()`, `checkbox_group()`, `card()`) rather than
-  hand-rolled markup. A bare `<input type="checkbox">` renders as a square box;
-  the iOS switch is `Perxel_UI::toggle()` / the `.pxui-toggle` class. Figures
-  (counts, totals) are a `rows()` group - label left, value as `content` right,
-  `sub` for the qualifier, `tone` for good/warn/bad.
-- Forms that can lose unsaved edits carry `data-pxui-dirty-guard` (kit >=
-  0.20.0).
-
-## The `vendor/perxel-ui/` kit
-
-Standalone repo [`perxel/wp-plugin-ui`](https://github.com/perxel/wp-plugin-ui),
-vendored via `bin/update-ui.sh <version>` (curl a tagged tarball into
-`vendor/perxel-ui/`, Action Scheduler style - no Composer). Committed;
-`.gitignore` keeps it out of the general `vendor/` ignore, `.distignore` strips
-only its dev-only `showcase/`. Overwriting it can never change plugin behaviour
-- the `loader.php` "highest version wins" negotiation picks the newest copy
-across every active plugin, and a second copy is inert.
-
-The version passed to `Perxel_UI_Loader::register()` in the main file **and** the
-`vendor/perxel-ui/` contents must match the tag you vendored. Update both when
-you run `bin/update-ui.sh`.
-
-We host the kit's component showcase as a hidden maintainer-only screen
-(`PERXEL_UI_SHOWCASE_HOSTED` + `Admin::can_see_showcase()`), so its own Tools
-page is suppressed.
+  even when every value is escaped. **Escape late**, at the point of the
+  `sprintf()`/echo: `Shortcode::render()` escapes the `title` attribute with
+  `esc_html()` and runs `content` through `do_shortcode()` rather than echoing
+  it raw. Never an `EscapeOutput` suppression, not even per line - the
+  2026-09-23 review of perxel-ai-translate rejected `echo $html; // phpcs:ignore
+  ... escaped earlier`. `composer run lint` runs `bin/check-suppressions.sh`,
+  which fails on blanket `WordPress.Security` disables and on any
+  `EscapeOutput` suppression.
+- This plugin does not vendor `vendor/perxel-ui/` - no admin screen needs it.
 
 ## Before committing
 
@@ -172,9 +130,8 @@ composer run build         # bin/build-zip.sh - installable zip in dist/
 ```
 
 `phpcs.xml.dist` curates the base `WordPress` standard: a terse-docblock house
-style, and `PrefixAllGlobals` is told about both the plugin prefix and the
-kit's (`perxel_ui` / `PERXEL_UI` / `Perxel_UI` / `pxui`). CI also runs the
-official **Plugin Check** action against the built zip (not the raw checkout).
+style. CI also runs the official **Plugin Check** action against the built zip
+(not the raw checkout).
 
 There are no automated tests and no WP in the lint environment - `phpcs` and
 `php -l` verify syntax and style only. Behaviour must be smoke-tested on a real
@@ -186,15 +143,15 @@ Rules that are not obvious and cost real time when re-derived per plugin:
 
 | Rule | Why |
 |---|---|
-| Namespace root = slug in `Ucfirst_Snake` (`Perxel_Example`) | `PrefixAllGlobals` accepts it as the prefix; a `Vendor\Package` namespace is flagged (`NonPrefixedNamespaceFound`) and Plugin Check ignores the `phpcs.xml.dist` prefix list |
-| Custom-table names via `%i`, never string-concatenated | `WordPress.DB.PreparedSQL.NotPrepared` is **error-level** and blocks .org (see "Custom tables") |
+| Namespace root = slug in `Ucfirst_Snake` (`Perxel_Tinymce_Accordion`) | `PrefixAllGlobals` accepts it as the prefix; a `Vendor\Package` namespace is flagged (`NonPrefixedNamespaceFound`) and Plugin Check ignores the `phpcs.xml.dist` prefix list |
 | No `load_plugin_textdomain()` | .org auto-loads translations (slug == text domain); calling it on `plugins_loaded` is "too early" on WP 6.7+ |
-| Prefix any variable you **assign** in a view (`$pxex_url`); vars passed in via `extract()` are fine | `NonPrefixedVariableFound` fires on template-scope assignments |
-| No `phpcs:disable WordPress.Security.*` anywhere in `includes/` or the main file, and no `EscapeOutput` suppression at all: escape late via `Admin::kit()` (`wp_kses` + `Perxel_UI::allowed_html()`) or `wp_kses()` with a narrow allowlist | Reviewers flag file-wide security disables (perxel-image-optimizer, perxel-ai-translate 2026-09-22) and per-line "escaped earlier" echoes (perxel-ai-translate 2026-09-23); `bin/check-suppressions.sh` enforces both |
+| No `phpcs:disable WordPress.Security.*` anywhere in `includes/` or the main file, and no `EscapeOutput` suppression at all: escape late with `esc_html()` / `esc_attr()` at the point of output | Reviewers flag file-wide security disables (perxel-image-optimizer, perxel-ai-translate 2026-09-22) and per-line "escaped earlier" echoes (perxel-ai-translate 2026-09-23); `bin/check-suppressions.sh` enforces both |
 | `set_time_limit()` etc.: `function_exists()` guard + inline `// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- <reason>` | discouraged-function warning |
-| Calling another plugin's hooks (WPML `wpml_*`, WooCommerce): scope a `phpcs.xml.dist` exclude to the wrapper file **and** add the code to `lint.yml` -> `ignore-codes` | `NonPrefixedHooknameFound`; the two tools don't share config |
-| No `'suppress_filters' => true` (Plugin Check **error**); `get_posts()` already defaults to it; for WPML use `do_action( 'wpml_switch_language', 'all' )` and restore | error-level `WordPressVIPMinimum...SuppressFilters_suppress_filters` |
-| A MySQL `GET_LOCK` result must be checked; skip the guarded work when it isn't `1` | reviewer flagged an ignored lock result as a race condition |
+
+See the starter's `CLAUDE.md` for the custom-table / `%i`-placeholder rules and
+other WPML/WooCommerce-hook and `suppress_filters` notes - none of them apply
+to this plugin (no custom tables, no other-plugin hooks), so they're omitted
+here rather than carried around unused.
 
 The split that bites: **Plugin Check runs its own ruleset, not `phpcs.xml.dist`.**
 Any suppression for a documented false positive goes in *both* places -
@@ -202,12 +159,12 @@ Any suppression for a documented false positive goes in *both* places -
 
 ## Releasing
 
-1. Bump the version in `perxel-example.php` (header + `PXEX_VERSION`) and
+1. Bump the version in `perxel-tinymce-accordion.php` (header + `PXTA_VERSION`) and
    `readme.txt` (`Stable tag`); add a changelog entry to both `readme.txt` and
    `CHANGELOG.md`. Merge to `main` first. Tag, plugin `Version:` and `Stable tag`
    must all be equal or the deploy fails before touching SVN.
 2. Create the tag on `main` and publish a GitHub Release. `release.yml`'s `zip`
-   job attaches `perxel-example.zip`; the `deploy` job commits trunk +
+   job attaches `perxel-tinymce-accordion.zip`; the `deploy` job commits trunk +
    `tags/<version>` + `.wordpress-org/` (-> SVN `assets/`) with the SHA-pinned
    10up action. It only runs when the repo variable `DEPLOY_TO_WPORG` is `true`.
 3. Verify `https://wordpress.org/plugins/<slug>/` and
@@ -237,35 +194,3 @@ tag itself; on a manual run it can't, hence the explicit `VERSION`. Do not bump
 versions, tag or publish releases without the maintainer asking.
 
 Build artifacts (`dist/`) are never committed.
-
-## Source of truth (starter repo only)
-
-Delete this section in a generated plugin.
-
-Every Perxel plugin is generated from here, so this repo is the single source of
-truth (SSOT) for everything that is *not* plugin-specific:
-
-| Owned here | Where |
-|---|---|
-| CI: PHPCS + Plugin Check (built-zip approach) | `.github/workflows/lint.yml`, `phpcs.xml.dist` |
-| Release: zip + SHA-pinned WordPress.org deploy, version gate, dry run | `.github/workflows/release.yml` |
-| What ships / what doesn't | `.distignore`, `bin/*.sh` (byte-identical everywhere) |
-| WordPress.org compliance rules and the release / first-submission process | `CLAUDE.md` -> "Documentation rules", "WordPress.org / Plugin Check compliance", "Releasing" |
-| Listing-asset names, sizes and tips | `.wordpress-org/README.md` |
-| House layout and conventions | `includes/`, `CLAUDE.md` |
-
-The admin UI kit is the one exception: its source is
-[`perxel/wp-plugin-ui`](https://github.com/perxel/wp-plugin-ui); plugins vendor it
-with `bin/update-ui.sh`.
-
-Rules:
-
-- **Fix shared things here first**, then port to plugins. If a plugin session finds
-  a better CI setup, a new compliance rule or a release gotcha, it goes into the
-  starter in the same sitting - never only into the one plugin, and never as a
-  separate "playbook" in a plugin repo (that is a second source of truth).
-- **Plugin-specific stays in the plugin**: its code, `readme.txt`, listing art,
-  slug/tokens.
-- Existing plugins do **not** auto-sync. When a starter change matters, port it by
-  hand (the slug and prefix tokens are the only expected differences in shared
-  files; `bin/*.sh` should be byte-identical).
