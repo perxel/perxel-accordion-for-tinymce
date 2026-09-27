@@ -4,7 +4,7 @@ Tags: accordion, editor, content, shortcode, tinymce, details
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,11 @@ gone.
 2. The accordion on a published post, with the first item open and the second one closed.
 
 == Changelog ==
+
+= 0.0.3 =
+* Fix: the "Insert Accordion" dialog is now sized to the viewport (capped at 900px wide) instead of TinyMCE's small default.
+* Fix: the Visual tab preview's edit (pencil) button now reopens the dialog instead of doing nothing.
+* Change: the dialog's content field is now a real classic-editor instance (same toolbar and Visual/Code tabs as the main editor) instead of a plain textarea with Quicktags.
 
 = 0.0.2 =
 * Fix: the Visual tab preview showed a stuck loading spinner instead of the accordion; the `wp.mce.views` registration now matches WordPress core's expected structure.
