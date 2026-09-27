@@ -63,7 +63,7 @@ The button itself is a classic TinyMCE plugin, so it shows up in the classic edi
 
 ### Do the accordions need JavaScript?
 
-Yes, one tiny script that opens and closes them. It loads only on pages that contain an accordion and has no dependencies. It also adds the `pxta-accordion--open` class to the wrapper of an open accordion, so your theme can style the open state.
+Yes, one tiny script that opens and closes them. It loads only on pages that contain an accordion and has no dependencies; if your theme already loads jQuery, the content slides open and closed. It also adds the `pxta-accordion--open` class to the wrapper of an open accordion, so your theme can style the open state.
 
 ### Can I change the look of the accordion?
 

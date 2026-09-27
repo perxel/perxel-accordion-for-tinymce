@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Perxel TinyMCE Accordion
  * Plugin URI:        https://github.com/perxel/wp-tinymce-accordion
- * Description:       Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as a native <details>/<summary> accordion.
+ * Description:       Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
  * Version:           0.0.4
  * Requires at least: 6.5
  * Requires PHP:      7.4

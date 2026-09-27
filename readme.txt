@@ -85,7 +85,8 @@ Shortcode block or from a template.
 = Do the accordions need JavaScript? =
 
 Yes, one tiny script that opens and closes them. It loads only on pages that
-contain an accordion and has no dependencies. It also adds the
+contain an accordion and has no dependencies; if your theme already loads
+jQuery, the content slides open and closed. It also adds the
 `pxta-accordion--open` class to the wrapper of an open accordion, so your theme
 can style the open state.
 
@@ -113,10 +114,11 @@ gone.
 = 0.0.4 =
 * Change: the accordion is now built as a WAI-ARIA accordion - the title is a button inside a heading (the Title tag setting: div by default, p or h1-h6), so headings stay in screen-reader heading navigation. It replaces the native `<details>`/`<summary>` markup.
 * New: an "Open by default" checkbox in the dialog. Accordions start collapsed unless it is ticked; the Visual tab preview is always shown open.
-* New: a small dependency-free front-end script opens and closes accordions and adds the `pxta-accordion--open` class to an open accordion's wrapper. It loads only on pages that contain an accordion.
+* New: a small dependency-free front-end script opens and closes accordions and adds the `pxta-accordion--open` class to an open accordion's wrapper. It loads only on pages that contain an accordion. When the page already loads jQuery, the content slides open and closed (instantly for visitors who prefer reduced motion).
 * New: the Title tag setting in the dialog.
-* Change: restyled default look - no background or border, arrow on the right, visible keyboard focus ring, and no arrow animation for visitors who prefer reduced motion.
-* Change: the accordion stylesheet now also loads in the classic editor, so the Visual tab preview matches the front end.
+* Change: restyled default look - light grey panel with rounded corners, a divider above the content, arrow on the right, visible keyboard focus ring, and no arrow animation for visitors who prefer reduced motion.
+* Change: the accordion stylesheet now also loads in the classic editor, so the Visual tab preview matches the front end. On the front end it loads only on pages that show an accordion.
+* Fix: no more empty paragraphs at the start and end of the accordion content, left behind by WordPress's automatic paragraphs.
 * Fix: the dialog now fits small screens, and its content editor inherits the main editor's styles and shows styled Visual/Code tabs.
 
 = 0.0.3 =

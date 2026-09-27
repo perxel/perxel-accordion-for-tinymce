@@ -67,6 +67,10 @@ class Shortcode {
 
 		wp_enqueue_script( 'pxta-accordion', PXTA_URL . '/' . self::JS, array(), self::asset_version( self::JS ), true );
 
+		if ( wp_style_is( 'pxta-accordion', 'registered' ) ) {
+			wp_enqueue_style( 'pxta-accordion' );
+		}
+
 		$html = sprintf(
 			'<div class="%1$s"><div class="pxta-accordion-inner">' .
 			'<%2$s class="pxta-accordion__heading"><button type="button" class="pxta-accordion__trigger" id="%3$s-trigger" aria-expanded="%4$s" aria-controls="%3$s-content">' .
@@ -110,12 +114,23 @@ class Shortcode {
 		return trim( $html );
 	}
 
+	/**
+	 * Registers the stylesheet, and enqueues it in the head when the current
+	 * post's content has an accordion. Accordions elsewhere (widgets, custom
+	 * fields, templates) enqueue it from render(), and it prints in the footer.
+	 */
 	public function assets() {
 		if ( ! self::load_css() ) {
 			return;
 		}
 
-		wp_enqueue_style( 'pxta-accordion', PXTA_URL . '/' . self::CSS, array(), self::css_version() );
+		wp_register_style( 'pxta-accordion', PXTA_URL . '/' . self::CSS, array(), self::css_version() );
+
+		$post = is_singular() ? get_post() : null;
+
+		if ( $post && has_shortcode( $post->post_content, self::TAG ) ) {
+			wp_enqueue_style( 'pxta-accordion' );
+		}
 	}
 
 	/**

@@ -103,9 +103,13 @@ them.
   `open`), renders the accordion HTML through the `pxta_accordion_html` filter
   (`title_tag` is the element wrapping the trigger button, default `div`; the
   allow-list `Shortcode::TITLE_TAGS` is mirrored by `TITLE_TAGS` in `editor.js`,
-  and the markup by `previewHtml()` there - change both together), and enqueues `assets/css/pxta-accordion.css`
-  unless `pxta_accordion_load_css` returns false. `render()` also enqueues
-  `assets/js/pxta-accordion.js` (footer), so pages without an accordion load no JS.
+  and the markup by `previewHtml()` there - change both together). Unless
+  `pxta_accordion_load_css` returns false, `assets/css/pxta-accordion.css` is
+  registered on `wp_enqueue_scripts` and enqueued in the head when the singular
+  post's content has the shortcode; `render()` enqueues it too (late, footer)
+  for accordions in widgets/fields/templates. `render()` also enqueues
+  `assets/js/pxta-accordion.js` (footer), so pages without an accordion load
+  neither file.
 - **`Editor`** - appends the `pxta_accordion` button to `mce_buttons`,
   registers `assets/js/editor.js` via `mce_external_plugins`, and adds
   `pxta-accordion.css` to `mce_css` (same `pxta_accordion_load_css` gate) so the
