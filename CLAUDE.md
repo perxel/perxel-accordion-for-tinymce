@@ -63,9 +63,9 @@ includes/Editor.php            mce_buttons / mce_external_plugins filters,
                                 scopes registration to editors with a rich toolbar
 assets/js/editor.js            TinyMCE 4 plugin: button + dialog that inserts the
                                 shortcode, and the wp.mce.views live-preview registration
-assets/css/admin.css           Insert-dialog styles, scoped under .pxta-accordion-dialog
+assets/css/pxta-admin.css      Insert-dialog styles, scoped under .pxta-accordion-dialog
                                 (the class editor.js adds to the dialog's inner wrapper)
-assets/css/accordion.css       Default details/summary styling (no JS); loaded on the
+assets/css/pxta-accordion.css  Default details/summary styling (no JS); loaded on the
                                 front end and in the TinyMCE iframe (mce_css)
 languages/                     .pot template
 readme.txt                     WordPress.org listing (keep in sync with README.md + version)
@@ -91,11 +91,11 @@ them.
 - **`Shortcode`** - registers `[pxta_accordion]`, renders the `<details>` HTML
   through the `pxta_accordion_html` filter (optional `title_tag` wraps the
   title inside `<summary>`; the allow-list `Shortcode::TITLE_TAGS` is mirrored
-  by `TITLE_TAGS` in `editor.js`), and enqueues `assets/css/accordion.css`
+  by `TITLE_TAGS` in `editor.js`), and enqueues `assets/css/pxta-accordion.css`
   unless `pxta_accordion_load_css` returns false.
 - **`Editor`** - appends the `pxta_accordion` button to `mce_buttons`,
   registers `assets/js/editor.js` via `mce_external_plugins`, and adds
-  `accordion.css` to `mce_css` (same `pxta_accordion_load_css` gate) so the
+  `pxta-accordion.css` to `mce_css` (same `pxta_accordion_load_css` gate) so the
   Visual tab preview looks like the front end. These filters are
   global by design (so ACF "Full" WYSIWYG fields, widget editors, etc. all pick
   it up) - do not scope by `$editor_id` unless testing turns up a conflict.

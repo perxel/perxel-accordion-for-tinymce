@@ -53,11 +53,11 @@ class Editor {
 
 		wp_enqueue_editor();
 
-		$css = PXTA_DIR . '/assets/css/admin.css';
+		$css = PXTA_DIR . '/assets/css/pxta-admin.css';
 
 		wp_enqueue_style(
 			'pxta-accordion-admin',
-			PXTA_URL . '/assets/css/admin.css',
+			PXTA_URL . '/assets/css/pxta-admin.css',
 			array(),
 			file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION
 		);

@@ -2,19 +2,28 @@
  * Admin styles for the "Insert Accordion" dialog. Everything is scoped under
  * .pxta-accordion-dialog, which editor.js adds to the dialog's inner wrapper.
  */
+.pxta-accordion-dialog * {
+    box-sizing:border-box;
+}
 .pxta-accordion-dialog .mce-top-part::before {display:none;}
 .pxta-accordion-dialog div.mce-toolbar-grp {
-	border:none;
+    border:none;
 }
 
 /* Keeps the footer (Save/Cancel) reachable when the content outgrows a short screen. */
 .pxta-accordion-dialog .mce-window-body {
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
 }
 
 .pxta-accordion-dialog .mce-toolbar .mce-btn-group .mce-btn {
-	border: 1px solid #c3c4c7;
+    border:1px solid #c3c4c7;
+}
+.pxta-accordion-dialog .mce-btn.mce-active button,
+.pxta-accordion-dialog .mce-btn.mce-active:hover button,
+.pxta-accordion-dialog .mce-btn.mce-active i,
+.pxta-accordion-dialog .mce-btn.mce-active:hover i {
+    color:#000;
 }
 
 /*
@@ -24,25 +33,32 @@
  * tabs to unstyled text. Scoping the same rules under the wrapper wins it back.
  */
 .pxta-accordion-dialog .wp-editor-tabs {
-	float: right;
+    float:right;
+    display:flex; gap:6px;
 }
 
 .pxta-accordion-dialog .wp-switch-editor {
-	float: left;
-	position: relative;
-	top: 1px;
-	height: 20px;
-	margin: 15px 0 0 5px;
-	padding: 3px 8px 4px;
-	border: 1px solid #dcdcde;
-	background: #f0f0f1;
-	color: #646970;
-	cursor: pointer;
+    height:20px;
+    padding:3px 8px 4px;
+    border:1px solid #dcdcde;
+    background:#f0f0f1;
+    color:#646970;
+    cursor:pointer;
 }
 
 .pxta-accordion-dialog .html-active .switch-html,
 .pxta-accordion-dialog .tmce-active .switch-tmce {
-	background: #f6f7f7;
-	color: #50575e;
-	border-bottom-color: #f6f7f7;
+    background:#f6f7f7;
+    color:#50575e;
+    border-bottom-color:#f6f7f7;
+}
+
+
+/* hide toolbar on code view */
+.pxta-accordion-dialog .html-active .quicktags-toolbar {display:none;}
+
+#pxta-accordion-content {
+    padding:10px;
+    border:1px solid #dcdcde;
+    box-sizing:border-box;
 }

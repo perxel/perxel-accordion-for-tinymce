@@ -19,7 +19,7 @@ class Shortcode {
 	 * on the front end and inside the classic editor (see Editor::add_editor_css()),
 	 * so the Visual tab preview matches the published page.
 	 */
-	const CSS = 'assets/css/accordion.css';
+	const CSS = 'assets/css/pxta-accordion.css';
 
 	/**
 	 * Tags the title may be wrapped in inside <summary> (the title_tag
