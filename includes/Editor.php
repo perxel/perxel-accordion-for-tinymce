@@ -33,6 +33,15 @@ class Editor {
 		}
 
 		wp_enqueue_editor();
+
+		$css = PXTA_DIR . '/assets/css/editor-dialog.css';
+
+		wp_enqueue_style(
+			'pxta-accordion-editor-dialog',
+			PXTA_URL . '/assets/css/editor-dialog.css',
+			array(),
+			file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION
+		);
 	}
 
 	/**
