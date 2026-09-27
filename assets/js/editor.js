@@ -11,6 +11,10 @@
 	var SHORTCODE = 'pxta_accordion';
 	var CONTENT_EDITOR_ID = 'pxta-accordion-content';
 	var DIALOG_MAX_WIDTH = 900;
+	var DIALOG_CHROME_HEIGHT = 100;
+	var CONTENT_MIN_HEIGHT = 100;
+	var CONTENT_BOTTOM_GAP = 15;
+	var WRAPPER_CLASS = 'pxta-accordion-dialog';
 
 	// tabler-icons "layout-bottombar-collapse", filled with Perxel blue (#2271B1).
 	var BUTTON_ICON =
@@ -32,16 +36,45 @@
 	}
 
 	/**
-	 * Full-height dialog, capped at DIALOG_MAX_WIDTH so it stays readable on
-	 * wide screens.
+	 * Fills the viewport, capped at DIALOG_MAX_WIDTH. TinyMCE adds the header
+	 * and footer on top of the height passed to windowManager.open(), so
+	 * DIALOG_CHROME_HEIGHT is subtracted here to keep the footer on screen.
 	 */
 	function dialogSize() {
-		var margin = 40;
+		var margin = window.innerHeight < 600 ? 10 : 30;
 
 		return {
-			width: Math.min( DIALOG_MAX_WIDTH, window.innerWidth - margin ),
-			height: window.innerHeight - 120,
+			width: Math.min( DIALOG_MAX_WIDTH, window.innerWidth - 2 * margin ),
+			height: Math.max( 120, window.innerHeight - 2 * margin - DIALOG_CHROME_HEIGHT ),
 		};
+	}
+
+	/**
+	 * Shrinks or grows the nested editor's iframe so the dialog body is
+	 * filled without overflowing; the body still scrolls if even the minimum
+	 * height does not fit.
+	 *
+	 * @param {tinymce.ui.Window} win
+	 */
+	function fitContentEditor( win ) {
+		var nested = tinymce.get( CONTENT_EDITOR_ID );
+		var body = win.getEl( 'body' );
+		var wrap = document.getElementById( 'wp-' + CONTENT_EDITOR_ID + '-wrap' );
+
+		if ( ! nested || ! nested.iframeElement || ! body || ! wrap ) {
+			return;
+		}
+
+		var iframe = nested.iframeElement;
+		var bodyRect = body.getBoundingClientRect();
+
+		// The window opens with a scale(.1) -> scale(1) CSS transition, and
+		// getBoundingClientRect() reports transformed sizes, so undo the scale.
+		var scale = bodyRect.height / body.offsetHeight || 1;
+		var wrapBottom = ( wrap.getBoundingClientRect().bottom - bodyRect.top ) / scale + body.scrollTop;
+		var free = body.clientHeight - wrapBottom - CONTENT_BOTTOM_GAP;
+
+		iframe.style.height = Math.max( CONTENT_MIN_HEIGHT, iframe.offsetHeight + free ) + 'px';
 	}
 
 	/**
@@ -63,9 +96,22 @@
 	 */
 	function openAccordionDialog( editor, initialTitle, initialContent, onSave ) {
 		var size = dialogSize();
-		var contentHeight = Math.max( 200, size.height - 260 );
+		var win;
 
-		editor.windowManager.open( {
+		function onResize() {
+			var next = dialogSize();
+			var rect = win.layoutRect();
+			var outerHeight = next.height + ( rect.h - rect.innerH );
+
+			win.resizeTo( next.width, outerHeight );
+			win.moveTo(
+				Math.max( 0, ( window.innerWidth - next.width ) / 2 ),
+				Math.max( 0, ( window.innerHeight - outerHeight ) / 2 )
+			);
+			fitContentEditor( win );
+		}
+
+		win = editor.windowManager.open( {
 			title: 'Insert Accordion',
 			width: size.width,
 			height: size.height,
@@ -94,7 +140,14 @@
 								statusbar: false,
 								toolbar1: 'bold,italic,bullist,numlist,blockquote,link,unlink,undo,redo',
 								plugins: 'lists,link,paste',
-								height: contentHeight,
+								height: CONTENT_MIN_HEIGHT,
+								// Inherit the host editor's styles (theme add_editor_style()
+								// etc.); wp.editor's defaults only carry core's stylesheets.
+								content_css: editor.settings.content_css,
+								body_class: editor.settings.body_class,
+								init_instance_callback: function () {
+									fitContentEditor( win );
+								},
 							},
 							quicktags: {
 								buttons: 'strong,em,link,ul,ol,li,close',
@@ -110,9 +163,15 @@
 				onSave( e.data.title || '', content == null ? initialContent : content );
 			},
 			onclose: function () {
+				window.removeEventListener( 'resize', onResize );
 				wp.editor.remove( CONTENT_EDITOR_ID );
 			},
 		} );
+
+		// TinyMCE re-renders the window's own class list, so the wrapper
+		// class goes on the inner .mce-reset element, which it never touches.
+		win.getEl().firstChild.classList.add( WRAPPER_CLASS );
+		window.addEventListener( 'resize', onResize );
 	}
 
 	tinymce.PluginManager.add( 'pxta_accordion', function ( editor ) {

@@ -1,0 +1,44 @@
+/*
+ * Admin styles for the "Insert Accordion" dialog. Everything is scoped under
+ * .pxta-accordion-dialog, which editor.js adds to the dialog's inner wrapper.
+ */
+
+/* Keeps the footer (Save/Cancel) reachable when the content outgrows a short screen. */
+.pxta-accordion-dialog .mce-window-body {
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.pxta-accordion-dialog .mce-toolbar .mce-btn-group .mce-btn {
+	border: 1px solid #c3c4c7;
+}
+
+/*
+ * The nested editor renders WordPress's own Visual/Code tab markup, but
+ * TinyMCE's skin CSS ships a ".mce-container, .mce-container *" reset that
+ * loads after WP core's CSS and wins the specificity tie, collapsing the
+ * tabs to unstyled text. Scoping the same rules under the wrapper wins it back.
+ */
+.pxta-accordion-dialog .wp-editor-tabs {
+	float: right;
+}
+
+.pxta-accordion-dialog .wp-switch-editor {
+	float: left;
+	position: relative;
+	top: 1px;
+	height: 20px;
+	margin: 15px 0 0 5px;
+	padding: 3px 8px 4px;
+	border: 1px solid #dcdcde;
+	background: #f0f0f1;
+	color: #646970;
+	cursor: pointer;
+}
+
+.pxta-accordion-dialog .html-active .switch-html,
+.pxta-accordion-dialog .tmce-active .switch-tmce {
+	background: #f6f7f7;
+	color: #50575e;
+	border-bottom-color: #f6f7f7;
+}

@@ -34,11 +34,11 @@ class Editor {
 
 		wp_enqueue_editor();
 
-		$css = PXTA_DIR . '/assets/css/editor-dialog.css';
+		$css = PXTA_DIR . '/assets/css/admin.css';
 
 		wp_enqueue_style(
-			'pxta-accordion-editor-dialog',
-			PXTA_URL . '/assets/css/editor-dialog.css',
+			'pxta-accordion-admin',
+			PXTA_URL . '/assets/css/admin.css',
 			array(),
 			file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION
 		);

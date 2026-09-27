@@ -63,6 +63,8 @@ includes/Editor.php            mce_buttons / mce_external_plugins filters,
                                 scopes registration to editors with a rich toolbar
 assets/js/editor.js            TinyMCE 4 plugin: button + dialog that inserts the
                                 shortcode, and the wp.mce.views live-preview registration
+assets/css/admin.css           Insert-dialog styles, scoped under .pxta-accordion-dialog
+                                (the class editor.js adds to the dialog's inner wrapper)
 assets/css/frontend.css        Default details/summary styling (no JS)
 languages/                     .pot template
 readme.txt                     WordPress.org listing (keep in sync with README.md + version)
