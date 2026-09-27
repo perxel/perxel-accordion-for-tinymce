@@ -44,9 +44,9 @@ jobs:
         uses: wordpress/plugin-check-action@v1
         with:
           build-dir: ./build/perxel-tinymce-accordion
-          # The repo is github.com/perxel/wp-tinymce-accordion but the WordPress.org
-          # slug (and text domain) is perxel-tinymce-accordion. Without this, every
-          # __() call reads as a text-domain mismatch.
+          # The WordPress.org slug (and text domain). Plugin Check otherwise
+          # guesses it from the checkout folder name, and every __() call then
+          # reads as a text-domain mismatch if the two ever differ.
           slug: perxel-tinymce-accordion
           # Plugin Check runs its OWN ruleset - it does not read phpcs.xml.dist.
           # The base template needs no ignores (the Perxel_Tinymce_Accordion namespace is

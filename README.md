@@ -8,8 +8,8 @@ The classic editor has no built-in way to add a collapsible "read more" section 
 
 ![Inserting an accordion in the classic editor](.github/assets/demo.gif)
 
-- [Download the latest release](https://github.com/perxel/wp-tinymce-accordion/releases)
-- Report an issue: [github.com/perxel/wp-tinymce-accordion](https://github.com/perxel/wp-tinymce-accordion)
+- [Download the latest release](https://github.com/perxel/perxel-tinymce-accordion/releases)
+- Report an issue: [github.com/perxel/perxel-tinymce-accordion](https://github.com/perxel/perxel-tinymce-accordion)
 
 ## What you get
 

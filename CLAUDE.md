@@ -6,7 +6,7 @@ document (see "Documentation rules" below).
 ## What this is
 
 `perxel-tinymce-accordion` - a **public** WordPress plugin (repo
-`github.com/perxel/wp-tinymce-accordion`, WordPress.org slug `perxel-tinymce-accordion`,
+`github.com/perxel/perxel-tinymce-accordion`, WordPress.org slug `perxel-tinymce-accordion`,
 published under the `phucbm` .org account, branded Perxel).
 
 It was scaffolded from
