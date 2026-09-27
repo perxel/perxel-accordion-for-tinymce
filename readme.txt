@@ -1,14 +1,14 @@
 === Perxel TinyMCE Accordion ===
 Contributors: phucbm
-Tags: accordion, editor, content, shortcode, tinymce, details
+Tags: accordion, editor, content, shortcode, tinymce
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.3
+Stable tag: 0.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as a native &lt;details&gt;/&lt;summary&gt; accordion.
+Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
 
 == Description ==
 
@@ -21,9 +21,10 @@ Click the button, fill in a title and the body text, and the editor inserts a
 `[pxta_accordion]` shortcode where your cursor was. In the **Visual** tab the
 accordion is drawn as a live preview you can open and read while you write; in
 the **Text** tab you get the raw shortcode, exactly as typed. On the front end
-the shortcode renders native `<details>`/`<summary>` markup, which browsers open
-and close on their own - no JavaScript is loaded on your site's front end, just
-a small default stylesheet.
+the shortcode renders an accessible accordion - a heading with a button that
+screen readers announce as expanded or collapsed - with a small default
+stylesheet and a tiny script, loaded only on pages that contain an accordion.
+Each accordion starts collapsed unless you tick **Open by default**.
 
 The button appears wherever the classic editor does: the post and page editor,
 the widget editors, and any Advanced Custom Fields WYSIWYG field whose toolbar
@@ -34,7 +35,8 @@ options stored in the database.
 
 * An **Insert Accordion** button in the classic editor toolbar, with a dialog for the title and the body text.
 * A live preview of each accordion in the Visual tab, and the plain shortcode in the Text tab.
-* Front-end accordions built on native `<details>`/`<summary>` - they open and close with no JavaScript.
+* Accessible front-end accordions: the title is a real button inside a heading of your choice, with the open/closed state exposed to screen readers.
+* An **Open by default** option per accordion; otherwise it starts collapsed.
 * A small default stylesheet (arrow indicator, spacing, borders) that your theme can restyle or switch off entirely.
 * Two filters for developers: `pxta_accordion_html` to replace the rendered HTML, and `pxta_accordion_load_css` to stop the default stylesheet from loading.
 
@@ -82,16 +84,17 @@ Shortcode block or from a template.
 
 = Do the accordions need JavaScript? =
 
-No. They are native `<details>`/`<summary>` elements, which browsers open and
-close on their own. The plugin loads only a small stylesheet on the front end -
-no JavaScript is enqueued there.
+Yes, one tiny script that opens and closes them. It loads only on pages that
+contain an accordion and has no dependencies. It also adds the
+`pxta-accordion--open` class to the wrapper of an open accordion, so your theme
+can style the open state.
 
 = Can I change the look of the accordion? =
 
 Yes, in three ways. Style `.pxta-accordion` and `.pxta-accordion__content` in
 your theme, return `false` from the `pxta_accordion_load_css` filter to skip
 the default stylesheet completely, or return your own markup from the
-`pxta_accordion_html` filter to replace the `<details>` output.
+`pxta_accordion_html` filter to replace the accordion markup.
 
 = What happens to my data if I delete the plugin? =
 
@@ -106,6 +109,15 @@ gone.
 2. The accordion on a published post, with the first item open and the second one closed.
 
 == Changelog ==
+
+= 0.0.4 =
+* Change: the accordion is now built as a WAI-ARIA accordion - the title is a button inside a heading (the Title tag setting: div by default, p or h1-h6), so headings stay in screen-reader heading navigation. It replaces the native `<details>`/`<summary>` markup.
+* New: an "Open by default" checkbox in the dialog. Accordions start collapsed unless it is ticked; the Visual tab preview is always shown open.
+* New: a small dependency-free front-end script opens and closes accordions and adds the `pxta-accordion--open` class to an open accordion's wrapper. It loads only on pages that contain an accordion.
+* New: the Title tag setting in the dialog.
+* Change: restyled default look - no background or border, arrow on the right, visible keyboard focus ring, and no arrow animation for visitors who prefer reduced motion.
+* Change: the accordion stylesheet now also loads in the classic editor, so the Visual tab preview matches the front end.
+* Fix: the dialog now fits small screens, and its content editor inherits the main editor's styles and shows styled Visual/Code tabs.
 
 = 0.0.3 =
 * Fix: the "Insert Accordion" dialog is now sized to the viewport (capped at 900px wide) instead of TinyMCE's small default.

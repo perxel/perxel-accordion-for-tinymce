@@ -1,58 +1,113 @@
+/*
+ * Perxel TinyMCE Accordion - default styles.
+ *
+ * Loaded on the front end and inside the classic editor's Visual tab, so the
+ * preview matches the published page. Turn it off entirely with
+ * add_filter( 'pxta_accordion_load_css', '__return_false' ).
+ *
+ * Markup rendered by the [pxta_accordion] shortcode:
+ *
+ *   .pxta-accordion                      outer wrapper; + .pxta-accordion--open while open
+ *     .pxta-accordion-inner
+ *       .pxta-accordion__heading         div, p or h1-h6 (the title_tag attribute)
+ *         button.pxta-accordion__trigger aria-expanded="true|false"
+ *           .pxta-accordion__title       the title text
+ *           .pxta-accordion__icon        the arrow, decorative (aria-hidden)
+ *       .pxta-accordion__content         [hidden] while closed
+ *         .pxta-accordion__content-inner put padding here, not on __content, so a
+ *                                        height (slide) animation doesn't jump
+ */
+
+/* Wrapper ------------------------------------------------------------------ */
+
 .pxta-accordion {
-	background: #fafafa;
-	border: 1px solid #e5e5e5;
-	border-radius: 4px;
-	margin: 1em 0;
-	overflow: hidden;
+    margin: 1em 0;
+    padding-bottom: 20px;
 }
 
-.pxta-accordion summary {
-	cursor: pointer;
-	padding: 0.75rem 1rem;
-	font-weight: 600;
-	list-style: none;
+/* Heading: only carries the tag's meaning (e.g. an h3 for screen readers), so
+   reset the theme's heading margins and let the button set the look. */
+.pxta-accordion__heading {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
 }
 
-.pxta-accordion summary::-webkit-details-marker {
-	display: none;
+/* Trigger ------------------------------------------------------------------ */
+
+/* The full-width clickable row: title on the left, arrow on the right.
+   Strips browser/theme button styling so it reads like a heading. */
+.pxta-accordion__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    line-height: inherit;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: inherit;
+    cursor: pointer;
 }
 
-.pxta-accordion summary::marker {
-	content: "";
+/* Keep a visible keyboard focus ring even if the theme removes button outlines. */
+.pxta-accordion__trigger:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
 }
 
-.pxta-accordion summary::before {
-	content: "";
-	display: inline-block;
-	width: 0;
-	height: 0;
-	border-left: 5px solid transparent;
-	border-right: 5px solid transparent;
-	border-top: 7px solid #666;
-	margin-right: 0.625rem;
-	vertical-align: middle;
-	transition: transform 0.15s ease;
-}
-
-/* A title_tag element keeps its own font size but sits on the arrow's line. */
 .pxta-accordion__title {
-	display: inline;
-	margin: 0;
-	vertical-align: middle;
+    flex: 1 1 auto;
 }
 
-.pxta-accordion[open] summary::before {
-	transform: rotate(180deg);
+/* Arrow: a CSS triangle pointing down while closed, flipped up while open. */
+.pxta-accordion__icon {
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #666;
+    transition: transform 0.15s ease;
 }
 
-.pxta-accordion__content {
-	padding: 0 1rem 1rem;
+.pxta-accordion--open .pxta-accordion__icon {
+    transform: rotate(180deg);
 }
 
-.pxta-accordion__content > *:first-child {
-	margin-top: 0.5rem;
+/* Visitors who ask the OS for less motion get the flip without the animation. */
+@media (prefers-reduced-motion: reduce) {
+    .pxta-accordion__icon {
+        transition: none;
+    }
 }
 
-.pxta-accordion__content > *:last-child {
-	margin-bottom: 0;
+/* Content ------------------------------------------------------------------ */
+
+/* A closed accordion's content carries the hidden attribute; some themes
+   override [hidden] with a display rule, so enforce it here. */
+.pxta-accordion__content[hidden] {
+    display: none;
+}
+
+.pxta-accordion__content-inner {
+    padding-top: 20px;
+}
+
+/* Trim the outer margins of the first/last block so the padding above sets
+   the spacing, whatever the editor content starts or ends with. */
+.pxta-accordion__content-inner > *:first-child {
+    margin-top: 0;
+}
+
+.pxta-accordion__content-inner > *:last-child {
+    margin-bottom: 0;
 }

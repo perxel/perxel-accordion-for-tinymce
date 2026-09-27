@@ -1,9 +1,14 @@
 /* global tinymce, wp */
 /**
  * Classic TinyMCE plugin: adds the "Insert Accordion" toolbar button, a
- * title/content dialog, and registers a wp.mce.views live preview for the
- * [pxta_accordion] shortcode in the Visual tab. The Text tab needs nothing
- * extra - it always shows the raw shortcode.
+ * dialog (title, title tag, "Open by default", content), and registers a
+ * wp.mce.views live preview for the [pxta_accordion] shortcode in the Visual
+ * tab. The Text tab needs nothing extra - it always shows the raw shortcode.
+ *
+ * Shortcode written by this file:
+ *   [pxta_accordion title="..." title_tag="h3" open="1"]content[/pxta_accordion]
+ * title_tag is omitted when it is the default (div), open when unchecked
+ * (collapsed). Shortcode.php renders the same markup as previewHtml() below.
  */
 ( function ( tinymce, wp ) {
 	'use strict';
@@ -16,55 +21,98 @@
 	var CONTENT_BOTTOM_GAP = 15;
 	var WRAPPER_CLASS = 'pxta-accordion-dialog';
 
-	// Tags the title may be wrapped in inside <summary>; keep in sync with
-	// Shortcode::TITLE_TAGS. An empty value leaves the title as bare text.
-	var TITLE_TAGS = [ 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div' ];
+	// Tags the element wrapping the trigger button may use; keep in sync with
+	// Shortcode::TITLE_TAGS and Shortcode::DEFAULT_TITLE_TAG.
+	var TITLE_TAGS = [ 'div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+	var DEFAULT_TITLE_TAG = 'div';
+
+	// Preview elements need unique ids for aria-controls/aria-labelledby.
+	var previewCount = 0;
 
 	// tabler-icons "layout-bottombar-collapse", filled with Perxel blue (#2271B1).
 	var BUTTON_ICON =
 		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMjI3MUIxIiBjbGFzcz0iaWNvbiBpY29uLXRhYmxlciBpY29ucy10YWJsZXItZmlsbGVkIGljb24tdGFibGVyLWxheW91dC1ib3R0b21iYXItY29sbGFwc2UiPjxwYXRoIHN0cm9rZT0ibm9uZSIgZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIgLz48cGF0aCBkPSJNMTggM2EzIDMgMCAwIDEgMi45OTUgMi44MjRsLjAwNSAuMTc2djEyYTMgMyAwIDAgMSAtMi44MjQgMi45OTVsLS4xNzYgLjAwNWgtMTJhMyAzIDAgMCAxIC0yLjk5NSAtMi44MjRsLS4wMDUgLS4xNzZ2LTEyYTMgMyAwIDAgMSAyLjgyNCAtMi45OTVsLjE3NiAtLjAwNWgxMnptMCAyaC0xMmExIDEgMCAwIDAgLS45OTMgLjg4M2wtLjAwNyAuMTE3djloMTR2LTlhMSAxIDAgMCAwIC0uODgzIC0uOTkzbC0uMTE3IC0uMDA3em0tNy4zODcgMy4yMWwuMDk0IC4wODNsMS4yOTMgMS4yOTJsMS4yOTMgLTEuMjkyYTEgMSAwIDAgMSAxLjMyIC0uMDgzbC4wOTQgLjA4M2ExIDEgMCAwIDEgLjA4MyAxLjMybC0uMDgzIC4wOTRsLTIgMmExIDEgMCAwIDEgLTEuMzIgLjA4M2wtLjA5NCAtLjA4M2wtMiAtMmExIDEgMCAwIDEgMS4zMiAtMS40OTd6IiAvPjwvc3ZnPg==';
 
 	/**
+	 * The accordion's settings as the dialog edits them.
+	 *
+	 * @typedef {Object} AccordionValues
+	 * @property {string}  title
+	 * @property {string}  titleTag One of TITLE_TAGS.
+	 * @property {boolean} open     Open on page load (the front end only; the preview is always open).
+	 * @property {string}  content  Inner HTML.
+	 */
+
+	/**
 	 * @param {string} tag
-	 * @return {string} The tag if it is allowed, otherwise ''.
+	 * @return {string} The tag if it is allowed, otherwise DEFAULT_TITLE_TAG.
 	 */
 	function sanitizeTitleTag( tag ) {
 		tag = String( tag || '' ).toLowerCase();
 
-		return TITLE_TAGS.indexOf( tag ) === -1 ? '' : tag;
+		return TITLE_TAGS.indexOf( tag ) === -1 ? DEFAULT_TITLE_TAG : tag;
 	}
 
 	/**
-	 * Builds the [pxta_accordion] shortcode wrapping the given content.
+	 * Reads a shortcode's attributes and content into dialog values.
+	 * Mirrors the truthy values Shortcode::render() accepts for `open`.
 	 *
-	 * @param {string} title
-	 * @param {string} titleTag
-	 * @param {string} content
+	 * @param {wp.shortcode} shortcode
+	 * @return {AccordionValues}
+	 */
+	function valuesFromShortcode( shortcode ) {
+		var attrs = shortcode.attrs.named;
+
+		return {
+			title: attrs.title || '',
+			titleTag: sanitizeTitleTag( attrs.title_tag ),
+			open: [ '1', 'true', 'yes' ].indexOf( String( attrs.open || '' ).toLowerCase() ) !== -1,
+			content: shortcode.content || '',
+		};
+	}
+
+	/**
+	 * Builds the [pxta_accordion] shortcode. Default values (div tag,
+	 * collapsed) are left out to keep the Text tab tidy.
+	 *
+	 * @param {AccordionValues} values
 	 * @return {string}
 	 */
-	function buildShortcode( title, titleTag, content ) {
-		var tag = sanitizeTitleTag( titleTag );
+	function buildShortcode( values ) {
+		var tag = sanitizeTitleTag( values.titleTag );
 
 		return (
-			'[' + SHORTCODE + ' title="' + tinymce.DOM.encode( title ) + '"' +
-			( tag ? ' title_tag="' + tag + '"' : '' ) + ']' +
-			content +
+			'[' + SHORTCODE + ' title="' + tinymce.DOM.encode( values.title ) + '"' +
+			( tag !== DEFAULT_TITLE_TAG ? ' title_tag="' + tag + '"' : '' ) +
+			( values.open ? ' open="1"' : '' ) + ']' +
+			values.content +
 			'[/' + SHORTCODE + ']'
 		);
 	}
 
 	/**
-	 * The <summary> inner HTML: the escaped title, wrapped in the tag if any.
+	 * The Visual tab preview: the same markup Shortcode::render() outputs on
+	 * the front end, but always open so the content can be read while editing
+	 * (the "Open by default" setting only affects the published page).
 	 *
-	 * @param {string} title
-	 * @param {string} titleTag
+	 * @param {AccordionValues} values
 	 * @return {string}
 	 */
-	function titleHtml( title, titleTag ) {
-		var tag = sanitizeTitleTag( titleTag );
-		var text = tinymce.DOM.encode( title );
+	function previewHtml( values ) {
+		var tag = sanitizeTitleTag( values.titleTag );
+		var id = 'pxta-accordion-preview-' + ( ++previewCount );
 
-		return tag ? '<' + tag + ' class="pxta-accordion__title">' + text + '</' + tag + '>' : text;
+		return (
+			'<div class="pxta-accordion pxta-accordion--open"><div class="pxta-accordion-inner">' +
+			'<' + tag + ' class="pxta-accordion__heading">' +
+			'<button type="button" class="pxta-accordion__trigger" id="' + id + '-trigger" aria-expanded="true" aria-controls="' + id + '-content">' +
+			'<span class="pxta-accordion__title">' + tinymce.DOM.encode( values.title ) + '</span>' +
+			'<span class="pxta-accordion__icon" aria-hidden="true"></span>' +
+			'</button></' + tag + '>' +
+			'<div class="pxta-accordion__content" id="' + id + '-content" role="region" aria-labelledby="' + id + '-trigger">' +
+			'<div class="pxta-accordion__content-inner">' + values.content + '</div></div>' +
+			'</div></div>'
+		);
 	}
 
 	/**
@@ -110,10 +158,10 @@
 	}
 
 	/**
-	 * Opens the title/content dialog, pre-filled with the given values, and
-	 * calls onSave( title, titleTag, content ) when the user confirms. Shared by the
-	 * insert button and the Visual tab preview's edit action, so editing an
-	 * existing accordion reopens the same dialog.
+	 * Opens the accordion dialog, pre-filled with the given values, and calls
+	 * onSave( values ) when the user confirms. Shared by the insert button and
+	 * the Visual tab preview's edit action, so editing an existing accordion
+	 * reopens the same dialog.
 	 *
 	 * The content field is a nested editor built with wp.editor.initialize(),
 	 * the same API WordPress itself uses for dynamically-added editors (e.g.
@@ -121,13 +169,11 @@
 	 * skin, toolbar, and native Visual/Code tabs - for free, instead of a
 	 * bare textarea or a hand-rolled tab toggle.
 	 *
-	 * @param {tinymce.Editor} editor
-	 * @param {string}         initialTitle
-	 * @param {string}         initialTitleTag
-	 * @param {string}         initialContent
-	 * @param {Function}       onSave
+	 * @param {tinymce.Editor}  editor
+	 * @param {AccordionValues} initial
+	 * @param {Function}        onSave
 	 */
-	function openAccordionDialog( editor, initialTitle, initialTitleTag, initialContent, onSave ) {
+	function openAccordionDialog( editor, initial, onSave ) {
 		var size = dialogSize();
 		var win;
 
@@ -153,18 +199,24 @@
 					type: 'textbox',
 					name: 'title',
 					label: 'Title',
-					value: initialTitle,
+					value: initial.title,
 				},
 				{
 					type: 'listbox',
 					name: 'title_tag',
 					label: 'Title tag',
-					value: sanitizeTitleTag( initialTitleTag ),
-					values: [ { text: 'None', value: '' } ].concat(
-						TITLE_TAGS.map( function ( tag ) {
-							return { text: tag, value: tag };
-						} )
-					),
+					value: sanitizeTitleTag( initial.titleTag ),
+					values: TITLE_TAGS.map( function ( tag ) {
+						return { text: tag === DEFAULT_TITLE_TAG ? tag + ' (default)' : tag, value: tag };
+					} ),
+				},
+				{
+					// Front end only: unchecked renders the accordion collapsed.
+					// The Visual tab preview is always open.
+					type: 'checkbox',
+					name: 'open',
+					label: 'Open by default',
+					checked: initial.open,
 				},
 				{
 					type: 'label',
@@ -176,7 +228,7 @@
 					html: '<textarea id="' + CONTENT_EDITOR_ID + '" style="width: 100%;"></textarea>',
 					onPostRender: function () {
 						var textarea = document.getElementById( CONTENT_EDITOR_ID );
-						textarea.value = initialContent;
+						textarea.value = initial.content;
 
 						wp.editor.initialize( CONTENT_EDITOR_ID, {
 							tinymce: {
@@ -206,7 +258,12 @@
 			onsubmit: function ( e ) {
 				var content = wp.editor.getContent( CONTENT_EDITOR_ID );
 
-				onSave( e.data.title || '', e.data.title_tag || '', content == null ? initialContent : content );
+				onSave( {
+					title: e.data.title || '',
+					titleTag: e.data.title_tag,
+					open: !! e.data.open,
+					content: content == null ? initial.content : content,
+				} );
 			},
 			onclose: function () {
 				window.removeEventListener( 'resize', onResize );
@@ -229,8 +286,10 @@
 			onclick: function () {
 				var selection = editor.selection.getContent( { format: 'raw' } );
 
-				openAccordionDialog( editor, '', '', selection, function ( title, titleTag, content ) {
-					editor.insertContent( buildShortcode( title, titleTag, content ) );
+				var initial = { title: '', titleTag: DEFAULT_TITLE_TAG, open: false, content: selection };
+
+				openAccordionDialog( editor, initial, function ( values ) {
+					editor.insertContent( buildShortcode( values ) );
 				} );
 			},
 		} );
@@ -242,21 +301,11 @@
 				this.render( this.getHtml() );
 			},
 			getHtml: function () {
-				var attrs = this.shortcode.attrs.named;
-
-				return (
-					'<details class="pxta-accordion" open>' +
-					'<summary>' + titleHtml( attrs.title || '', attrs.title_tag ) + '</summary>' +
-					'<div class="pxta-accordion__content">' + this.shortcode.content + '</div>' +
-					'</details>'
-				);
+				return previewHtml( valuesFromShortcode( this.shortcode ) );
 			},
 			edit: function ( text, update ) {
-				var attrs = this.shortcode.attrs.named;
-				var content = this.shortcode.content || '';
-
-				openAccordionDialog( tinymce.activeEditor, attrs.title || '', attrs.title_tag, content, function ( newTitle, newTitleTag, newContent ) {
-					update( buildShortcode( newTitle, newTitleTag, newContent ) );
+				openAccordionDialog( tinymce.activeEditor, valuesFromShortcode( this.shortcode ), function ( values ) {
+					update( buildShortcode( values ) );
 				} );
 			},
 		} );

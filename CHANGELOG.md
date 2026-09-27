@@ -3,6 +3,16 @@
 All notable changes to this plugin are documented here. This file mirrors the
 `== Changelog ==` section of `readme.txt` (keep the two in sync).
 
+## 0.0.4
+
+* Change: the accordion is now built as a WAI-ARIA accordion - the title is a button inside a heading (the Title tag setting: div by default, p or h1-h6), so headings stay in screen-reader heading navigation. It replaces the native `<details>`/`<summary>` markup.
+* New: an "Open by default" checkbox in the dialog. Accordions start collapsed unless it is ticked; the Visual tab preview is always shown open.
+* New: a small dependency-free front-end script opens and closes accordions and adds the `pxta-accordion--open` class to an open accordion's wrapper. It loads only on pages that contain an accordion.
+* New: the Title tag setting in the dialog.
+* Change: restyled default look - no background or border, arrow on the right, visible keyboard focus ring, and no arrow animation for visitors who prefer reduced motion.
+* Change: the accordion stylesheet now also loads in the classic editor, so the Visual tab preview matches the front end.
+* Fix: the dialog now fits small screens, and its content editor inherits the main editor's styles and shows styled Visual/Code tabs.
+
 ## 0.0.3
 
 * Fix: the "Insert Accordion" dialog is now sized to the viewport (capped at 900px wide) instead of TinyMCE's small default.

@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The [pxta_accordion] shortcode: a native <details>/<summary> accordion,
- * plus the default front-end stylesheet.
+ * The [pxta_accordion] shortcode: a WAI-ARIA accordion (heading > button
+ * trigger + content region), plus its front-end stylesheet and script.
  */
 class Shortcode {
 
@@ -22,10 +22,18 @@ class Shortcode {
 	const CSS = 'assets/css/pxta-accordion.css';
 
 	/**
-	 * Tags the title may be wrapped in inside <summary> (the title_tag
+	 * Front-end script that opens/closes accordions (aria-expanded, hidden,
+	 * pxta-accordion--open). Enqueued only when an accordion renders.
+	 */
+	const JS = 'assets/js/pxta-accordion.js';
+
+	/**
+	 * Tags the element wrapping the trigger button may use (the title_tag
 	 * attribute); keep in sync with TITLE_TAGS in assets/js/editor.js.
 	 */
-	const TITLE_TAGS = array( 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div' );
+	const TITLE_TAGS = array( 'div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' );
+
+	const DEFAULT_TITLE_TAG = 'div';
 
 	public function register() {
 		add_shortcode( self::TAG, array( $this, 'render' ) );
@@ -41,7 +49,8 @@ class Shortcode {
 		$atts = shortcode_atts(
 			array(
 				'title'     => '',
-				'title_tag' => '',
+				'title_tag' => self::DEFAULT_TITLE_TAG,
+				'open'      => '',
 			),
 			$atts,
 			self::TAG
@@ -49,15 +58,27 @@ class Shortcode {
 
 		$tag = strtolower( (string) $atts['title_tag'] );
 
-		if ( in_array( $tag, self::TITLE_TAGS, true ) ) {
-			$title = sprintf( '<%1$s class="pxta-accordion__title">%2$s</%1$s>', tag_escape( $tag ), esc_html( $atts['title'] ) );
-		} else {
-			$title = esc_html( $atts['title'] );
+		if ( ! in_array( $tag, self::TITLE_TAGS, true ) ) {
+			$tag = self::DEFAULT_TITLE_TAG;
 		}
 
+		$open = in_array( strtolower( (string) $atts['open'] ), array( '1', 'true', 'yes' ), true );
+		$id   = wp_unique_id( 'pxta-accordion-' );
+
+		wp_enqueue_script( 'pxta-accordion', PXTA_URL . '/' . self::JS, array(), self::asset_version( self::JS ), true );
+
 		$html = sprintf(
-			'<details class="pxta-accordion"><summary>%s</summary><div class="pxta-accordion__content">%s</div></details>',
-			$title,
+			'<div class="%1$s"><div class="pxta-accordion-inner">' .
+			'<%2$s class="pxta-accordion__heading"><button type="button" class="pxta-accordion__trigger" id="%3$s-trigger" aria-expanded="%4$s" aria-controls="%3$s-content">' .
+			'<span class="pxta-accordion__title">%5$s</span><span class="pxta-accordion__icon" aria-hidden="true"></span></button></%2$s>' .
+			'<div class="pxta-accordion__content" id="%3$s-content" role="region" aria-labelledby="%3$s-trigger"%6$s><div class="pxta-accordion__content-inner">%7$s</div></div>' .
+			'</div></div>',
+			esc_attr( $open ? 'pxta-accordion pxta-accordion--open' : 'pxta-accordion' ),
+			tag_escape( $tag ),
+			esc_attr( $id ),
+			$open ? 'true' : 'false',
+			esc_html( $atts['title'] ),
+			$open ? '' : ' hidden',
 			do_shortcode( (string) $content )
 		);
 
@@ -65,7 +86,7 @@ class Shortcode {
 		 * Filter the accordion's rendered HTML. Return your own markup to
 		 * replace it entirely.
 		 *
-		 * @param string      $html    The rendered <details> markup.
+		 * @param string      $html    The rendered accordion markup.
 		 * @param array       $atts    Shortcode attributes (with defaults applied).
 		 * @param string|null $content Raw shortcode inner content.
 		 */
@@ -100,8 +121,16 @@ class Shortcode {
 	 * @return string
 	 */
 	public static function css_version() {
-		$css = PXTA_DIR . '/' . self::CSS;
+		return self::asset_version( self::CSS );
+	}
 
-		return file_exists( $css ) ? (string) filemtime( $css ) : PXTA_VERSION;
+	/**
+	 * @param string $path Asset path relative to the plugin root.
+	 * @return string
+	 */
+	private static function asset_version( $path ) {
+		$file = PXTA_DIR . '/' . $path;
+
+		return file_exists( $file ) ? (string) filemtime( $file ) : PXTA_VERSION;
 	}
 }

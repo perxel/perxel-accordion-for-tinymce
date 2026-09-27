@@ -16,8 +16,13 @@ Adds an "Insert Accordion" button to the classic TinyMCE editor (main post
 editor, widget editors, ACF WYSIWYG fields set to "Toolbar: Full"). Clicking it
 inserts a `[pxta_accordion]` shortcode; the Visual tab renders a live preview
 via `wp.mce.views`, the Text tab shows the raw shortcode. On the front end a
-PHP shortcode handler renders `<details>/<summary>` HTML with a small default
-stylesheet - no JS is enqueued on the front end (`<details>` is native).
+PHP shortcode handler renders a WAI-ARIA accordion (heading > `<button
+aria-expanded>` + `[hidden]` content region; full markup map at the top of
+`pxta-accordion.css`) with a small default stylesheet. `assets/js/pxta-accordion.js`
+opens/closes it (enqueued only when an accordion renders). Collapsed unless the
+shortcode has `open="1"` ("Open by default" in the dialog); the Visual tab
+preview is always open. `<details>/<summary>` was dropped so the title can sit
+in a real heading and the maintainer can add a jQuery slide animation later.
 
 This is a custom TinyMCE-4-compatible plugin, not TinyMCE's own built-in
 `accordion` plugin - that one requires TinyMCE 6+, and WordPress classic editor
@@ -63,9 +68,11 @@ includes/Editor.php            mce_buttons / mce_external_plugins filters,
                                 scopes registration to editors with a rich toolbar
 assets/js/editor.js            TinyMCE 4 plugin: button + dialog that inserts the
                                 shortcode, and the wp.mce.views live-preview registration
+assets/js/pxta-accordion.js    Front end: trigger click toggles aria-expanded, the content's
+                                hidden attribute and pxta-accordion--open on the wrapper
 assets/css/pxta-admin.css      Insert-dialog styles, scoped under .pxta-accordion-dialog
                                 (the class editor.js adds to the dialog's inner wrapper)
-assets/css/pxta-accordion.css  Default details/summary styling (no JS); loaded on the
+assets/css/pxta-accordion.css  Default accordion styling; loaded on the
                                 front end and in the TinyMCE iframe (mce_css)
 languages/                     .pot template
 readme.txt                     WordPress.org listing (keep in sync with README.md + version)
@@ -88,11 +95,13 @@ them.
 
 - **`Plugin`** - singleton. `boot()` instantiates `Shortcode` and `Editor` and
   calls `register()` on each.
-- **`Shortcode`** - registers `[pxta_accordion]`, renders the `<details>` HTML
-  through the `pxta_accordion_html` filter (optional `title_tag` wraps the
-  title inside `<summary>`; the allow-list `Shortcode::TITLE_TAGS` is mirrored
-  by `TITLE_TAGS` in `editor.js`), and enqueues `assets/css/pxta-accordion.css`
-  unless `pxta_accordion_load_css` returns false.
+- **`Shortcode`** - registers `[pxta_accordion]` (`title`, `title_tag`,
+  `open`), renders the accordion HTML through the `pxta_accordion_html` filter
+  (`title_tag` is the element wrapping the trigger button, default `div`; the
+  allow-list `Shortcode::TITLE_TAGS` is mirrored by `TITLE_TAGS` in `editor.js`,
+  and the markup by `previewHtml()` there - change both together), and enqueues `assets/css/pxta-accordion.css`
+  unless `pxta_accordion_load_css` returns false. `render()` also enqueues
+  `assets/js/pxta-accordion.js` (footer), so pages without an accordion load no JS.
 - **`Editor`** - appends the `pxta_accordion` button to `mce_buttons`,
   registers `assets/js/editor.js` via `mce_external_plugins`, and adds
   `pxta-accordion.css` to `mce_css` (same `pxta_accordion_load_css` gate) so the

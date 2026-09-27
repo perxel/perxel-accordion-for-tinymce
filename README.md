@@ -1,6 +1,6 @@
 # Perxel TinyMCE Accordion
 
-Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as a native `<details>`/`<summary>` accordion.
+Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
 
 The classic editor has no built-in way to add a collapsible "read more" section to a post. This plugin puts a button in the editor toolbar that inserts an accordion as a plain shortcode, so it stays readable and re-editable in your content.
 
@@ -11,7 +11,8 @@ The classic editor has no built-in way to add a collapsible "read more" section 
 
 - An **Insert Accordion** button in the classic editor toolbar, with a dialog for the title and the body text.
 - A live preview of each accordion in the Visual tab, and the plain `[pxta_accordion]` shortcode in the Text tab.
-- Front-end accordions built on native `<details>`/`<summary>` - they open and close with no JavaScript.
+- Accessible front-end accordions: the title is a real button inside a heading of your choice, with the open/closed state exposed to screen readers.
+- An **Open by default** option per accordion; otherwise it starts collapsed.
 - A small default stylesheet (arrow indicator, spacing, borders) that your theme can restyle or switch off entirely.
 - Two filters for developers: `pxta_accordion_html` to replace the rendered HTML, and `pxta_accordion_load_css` to stop the default stylesheet from loading.
 
@@ -62,11 +63,11 @@ The button itself is a classic TinyMCE plugin, so it shows up in the classic edi
 
 ### Do the accordions need JavaScript?
 
-No. They are native `<details>`/`<summary>` elements, which browsers open and close on their own. The plugin loads only a small stylesheet on the front end - no JavaScript is enqueued there.
+Yes, one tiny script that opens and closes them. It loads only on pages that contain an accordion and has no dependencies. It also adds the `pxta-accordion--open` class to the wrapper of an open accordion, so your theme can style the open state.
 
 ### Can I change the look of the accordion?
 
-Yes, in three ways. Style `.pxta-accordion` and `.pxta-accordion__content` in your theme, return `false` from the `pxta_accordion_load_css` filter to skip the default stylesheet completely, or return your own markup from the `pxta_accordion_html` filter to replace the `<details>` output.
+Yes, in three ways. Style `.pxta-accordion` and `.pxta-accordion__content` in your theme, return `false` from the `pxta_accordion_load_css` filter to skip the default stylesheet completely, or return your own markup from the `pxta_accordion_html` filter to replace the accordion markup.
 
 ### What happens to my data if I delete the plugin?
 
