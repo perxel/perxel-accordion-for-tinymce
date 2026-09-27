@@ -4,7 +4,7 @@ Tags: accordion, editor, content, shortcode, tinymce, details
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,11 @@ gone.
 2. The accordion on a published post, with the first item open and the second one closed.
 
 == Changelog ==
+
+= 0.0.2 =
+* Fix: the Visual tab preview showed a stuck loading spinner instead of the accordion; the `wp.mce.views` registration now matches WordPress core's expected structure.
+* Change: the dialog's content field gets Quicktags (link/list buttons) instead of a plain textarea.
+* Change: the toolbar button now shows a Perxel-blue icon.
 
 = 0.0.1 =
 * First release.

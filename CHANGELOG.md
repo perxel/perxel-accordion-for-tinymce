@@ -3,6 +3,12 @@
 All notable changes to this plugin are documented here. This file mirrors the
 `== Changelog ==` section of `readme.txt` (keep the two in sync).
 
+## 0.0.2
+
+* Fix: the Visual tab preview showed a stuck loading spinner instead of the accordion; the `wp.mce.views` registration now matches WordPress core's expected structure.
+* Change: the dialog's content field gets Quicktags (link/list buttons) instead of a plain textarea.
+* Change: the toolbar button now shows a Perxel-blue icon.
+
 ## 0.0.1
 
 * First release.

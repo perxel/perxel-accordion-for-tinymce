@@ -16,6 +16,21 @@ class Editor {
 	public function register() {
 		add_filter( 'mce_buttons', array( $this, 'add_button' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_plugin' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_quicktags' ) );
+	}
+
+	/**
+	 * The dialog's content field uses Quicktags (link/list buttons on a
+	 * plain textarea) rather than a nested visual editor. Most editor
+	 * contexts already load it for the Text tab, but this guarantees it
+	 * for contexts (e.g. some ACF field setups) that don't.
+	 */
+	public function enqueue_quicktags() {
+		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+
+		wp_enqueue_script( 'quicktags' );
 	}
 
 	/**
