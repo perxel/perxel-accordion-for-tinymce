@@ -22,7 +22,10 @@ aria-expanded>` + `[hidden]` content region; full markup map at the top of
 opens/closes it (enqueued only when an accordion renders). Collapsed unless the
 shortcode has `open="1"` ("Open by default" in the dialog); the Visual tab
 preview is always open. `<details>/<summary>` was dropped so the title can sit
-in a real heading and the maintainer can add a jQuery slide animation later.
+in a real heading and the content can slide: when the page already loads jQuery
+(not a dependency - the script checks `window.jQuery` per click), the content
+animates with `slideDown`/`slideUp`; without jQuery, or under
+`prefers-reduced-motion`, it toggles `[hidden]` instantly.
 
 This is a custom TinyMCE-4-compatible plugin, not TinyMCE's own built-in
 `accordion` plugin - that one requires TinyMCE 6+, and WordPress classic editor
@@ -69,7 +72,8 @@ includes/Editor.php            mce_buttons / mce_external_plugins filters,
 assets/js/editor.js            TinyMCE 4 plugin: button + dialog that inserts the
                                 shortcode, and the wp.mce.views live-preview registration
 assets/js/pxta-accordion.js    Front end: trigger click toggles aria-expanded, the content's
-                                hidden attribute and pxta-accordion--open on the wrapper
+                                hidden attribute and pxta-accordion--open on the wrapper;
+                                slides the content if jQuery is on the page
 assets/css/pxta-admin.css      Insert-dialog styles, scoped under .pxta-accordion-dialog
                                 (the class editor.js adds to the dialog's inner wrapper)
 assets/css/pxta-accordion.css  Default accordion styling; loaded on the

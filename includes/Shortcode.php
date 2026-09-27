@@ -79,7 +79,7 @@ class Shortcode {
 			$open ? 'true' : 'false',
 			esc_html( $atts['title'] ),
 			$open ? '' : ' hidden',
-			do_shortcode( (string) $content )
+			self::clean_content( do_shortcode( (string) $content ) )
 		);
 
 		/**
@@ -91,6 +91,23 @@ class Shortcode {
 		 * @param string|null $content Raw shortcode inner content.
 		 */
 		return apply_filters( 'pxta_accordion_html', $html, $atts, $content );
+	}
+
+	/**
+	 * Undo wpautop's damage around the shortcode tags. wpautop (the_content,
+	 * priority 10) runs before shortcodes (priority 11), so the content arrives
+	 * as "</p>\n<p>...</p>\n<p>" - the stray edge tags become empty paragraphs
+	 * in the browser. Strip those, then any empty <p> left inside.
+	 *
+	 * @param string $html Rendered inner content.
+	 * @return string
+	 */
+	private static function clean_content( $html ) {
+		$html = preg_replace( '#^\s*(?:</p>|<br\s*/?>)\s*#i', '', $html );
+		$html = preg_replace( '#\s*(?:<p>|<br\s*/?>)\s*$#i', '', $html );
+		$html = preg_replace( '#<p>(?:\s|&nbsp;|&\#160;|<br\s*/?>)*</p>\s*#i', '', $html );
+
+		return trim( $html );
 	}
 
 	public function assets() {
