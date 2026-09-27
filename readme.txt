@@ -106,8 +106,9 @@ gone.
 
 == Screenshots ==
 
-1. The **Accordion** button in the classic editor toolbar, and the dialog it opens for the title and body text.
-2. The accordion on a published post, with the first item open and the second one closed.
+1. The **Accordion** button in the classic editor toolbar, and the live accordion preview in the Visual tab.
+2. The Insert Accordion dialog: title, title tag, "Open by default", and the content in a mini classic editor.
+3. The accordion on the front end, opening and closing.
 
 == Changelog ==
 

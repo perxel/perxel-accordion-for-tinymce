@@ -85,7 +85,13 @@ bin/                            build-zip.sh, update-ui.sh - identical in every 
 .wordpress-org/                 Listing assets (icon, banner, screenshots) - not shipped
 .claude/assets-src/             Master/source art for the listing assets - committed, not shipped
 .github/workflows/              lint.yml (PHPCS + Plugin Check), release.yml
+.github/assets/                 README-only images (demo.gif) - not shipped, not on .org
 ```
+
+`.wordpress-org/` holds `banner-772x250.jpg` only - the banner master
+(`.claude/assets-src/banner-master.jpg`) is 1100px wide, too small for the
+1544x500 retina banner; add that once a larger master exists. `README.md`
+reuses the `.wordpress-org/` screenshots and the banner master.
 
 `includes/` is loaded by the `spl_autoload_register` in the main file (not
 Composer). `Plugin::instance()->boot()` runs on `plugins_loaded` and wires

@@ -1,8 +1,12 @@
 # Perxel TinyMCE Accordion
 
+![Perxel TinyMCE Accordion](.claude/assets-src/banner-master.jpg)
+
 Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
 
 The classic editor has no built-in way to add a collapsible "read more" section to a post. This plugin puts a button in the editor toolbar that inserts an accordion as a plain shortcode, so it stays readable and re-editable in your content.
+
+![Inserting an accordion in the classic editor](.github/assets/demo.gif)
 
 - [Download the latest release](https://github.com/perxel/wp-tinymce-accordion/releases)
 - Report an issue: [github.com/perxel/wp-tinymce-accordion](https://github.com/perxel/wp-tinymce-accordion)
@@ -20,10 +24,17 @@ The button shows up in the post and page editor, the widget editors, and any Adv
 
 ## Screenshots
 
-1. The **Accordion** button in the classic editor toolbar, and the dialog it opens for the title and body text.
-2. The accordion on a published post, with the first item open and the second one closed.
+**The Accordion button and the live preview in the Visual tab**
 
-<!-- The listing art referenced by these captions lives in .wordpress-org/ - see the README there. -->
+![The Accordion button in the classic editor toolbar, and the live accordion preview in the Visual tab](.wordpress-org/screenshot-1.png)
+
+**The Insert Accordion dialog**
+
+![The Insert Accordion dialog: title, title tag, Open by default, and the content in a mini classic editor](.wordpress-org/screenshot-2.png)
+
+**On the front end**
+
+![The accordion on the front end, opening and closing](.wordpress-org/screenshot-3.gif)
 
 ## Installation
 
