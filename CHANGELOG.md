@@ -3,6 +3,11 @@
 All notable changes to this plugin are documented here. This file mirrors the
 `== Changelog ==` section of `readme.txt` (keep the two in sync).
 
+## 0.0.5
+
+* Fix: the link button in the dialog's content editor opened its URL popup hidden behind the dialog, so links (and the "Open link in a new tab" option under Link options) could not be added.
+* Change: removed the blockquote button from the dialog's content editor toolbar.
+
 ## 0.0.4
 
 * Change: the accordion is now built as a WAI-ARIA accordion - the title is a button inside a heading (the Title tag setting: div by default, p or h1-h6), so headings stay in screen-reader heading navigation. It replaces the native `<details>`/`<summary>` markup.

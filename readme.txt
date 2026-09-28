@@ -4,7 +4,7 @@ Tags: accordion, editor, content, shortcode, tinymce
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.4
+Stable tag: 0.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,10 @@ gone.
 3. The accordion on the front end, opening and closing.
 
 == Changelog ==
+
+= 0.0.5 =
+* Fix: the link button in the dialog's content editor opened its URL popup hidden behind the dialog, so links (and the "Open link in a new tab" option under Link options) could not be added.
+* Change: removed the blockquote button from the dialog's content editor toolbar.
 
 = 0.0.4 =
 * Change: the accordion is now built as a WAI-ARIA accordion - the title is a button inside a heading (the Title tag setting: div by default, p or h1-h6), so headings stay in screen-reader heading navigation. It replaces the native `<details>`/`<summary>` markup.
