@@ -62,3 +62,14 @@
     border:1px solid #dcdcde;
     box-sizing:border-box;
 }
+
+/*
+ * The nested editor's link popup ("Paste URL or type to search") is a
+ * <body>-level inline toolbar at z-index 100100, and TinyMCE stacks this
+ * dialog at 100101, so the popup opened hidden behind it. editor.js sets
+ * the body class while the dialog is open. #wp-link-wrap (the "Link options"
+ * modal, 100105) already sits above both.
+ */
+body.pxta-accordion-dialog-open .mce-inline-toolbar-grp {
+    z-index:100102;
+}

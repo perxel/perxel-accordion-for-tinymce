@@ -20,6 +20,7 @@
 	var CONTENT_MIN_HEIGHT = 100;
 	var CONTENT_BOTTOM_GAP = 15;
 	var WRAPPER_CLASS = 'pxta-accordion-dialog';
+	var BODY_OPEN_CLASS = 'pxta-accordion-dialog-open';
 
 	// Tags the element wrapping the trigger button may use; keep in sync with
 	// Shortcode::TITLE_TAGS and Shortcode::DEFAULT_TITLE_TAG.
@@ -234,7 +235,7 @@
 							tinymce: {
 								menubar: false,
 								statusbar: false,
-								toolbar1: 'bold,italic,bullist,numlist,blockquote,link,unlink,undo,redo',
+								toolbar1: 'bold,italic,bullist,numlist,link,unlink,undo,redo',
 								// No `plugins` override: wp.editor's defaults include the
 								// "wordpress" plugin, which adds the mceContentBody/wp-editor
 								// body classes that core and theme editor styles are scoped to.
@@ -274,6 +275,8 @@
 		// TinyMCE re-renders the window's own class list, so the wrapper
 		// class goes on the inner .mce-reset element, which it never touches.
 		win.getEl().firstChild.classList.add( WRAPPER_CLASS );
+		// Lets pxta-admin.css lift the link popup (appended to <body>) above the dialog.
+		document.body.classList.add( BODY_OPEN_CLASS );
 		window.addEventListener( 'resize', onResize );
 	}
 
