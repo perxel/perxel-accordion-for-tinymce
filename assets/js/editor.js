@@ -159,6 +159,46 @@
 	}
 
 	/**
+	 * Adds the table button to the nested editor's settings when the host
+	 * editor has a `table` plugin (TinyMCE Advanced, a theme, ...). WordPress
+	 * core does not bundle one, so nothing is added when it is missing.
+	 *
+	 * @param {tinymce.Editor} editor   Host editor.
+	 * @param {Object}         settings Nested editor's tinymce settings, mutated.
+	 */
+	function addTableSupport( editor, settings ) {
+		var hostPlugins = editor.settings.plugins || '';
+		var external = {};
+		var hasTable = ( tinymce.PluginManager.lookup && tinymce.PluginManager.lookup.table ) ||
+			/(^|[\s,])table([\s,]|$)/.test( hostPlugins );
+
+		if ( ! hasTable ) {
+			return;
+		}
+
+		// Reuse the host's plugin list so `table` resolves the same way, but never
+		// nest this plugin's own button inside the dialog.
+		settings.plugins = ( Array.isArray( hostPlugins ) ? hostPlugins.join( ' ' ) : hostPlugins )
+			.split( /[\s,]+/ )
+			.filter( function ( name ) {
+				return name && name !== 'pxta_accordion';
+			} )
+			.join( ' ' );
+
+		Object.keys( editor.settings.external_plugins || {} ).forEach( function ( name ) {
+			if ( name !== 'pxta_accordion' ) {
+				external[ name ] = editor.settings.external_plugins[ name ];
+			}
+		} );
+		settings.external_plugins = external;
+
+		if ( ! /(^|[\s,])table([\s,]|$)/.test( settings.plugins ) ) {
+			settings.plugins += ' table';
+		}
+		settings.toolbar1 += ',table';
+	}
+
+	/**
 	 * Opens the accordion dialog, pre-filled with the given values, and calls
 	 * onSave( values ) when the user confirms. Shared by the insert button and
 	 * the Visual tab preview's edit action, so editing an existing accordion
@@ -231,23 +271,28 @@
 						var textarea = document.getElementById( CONTENT_EDITOR_ID );
 						textarea.value = initial.content;
 
-						wp.editor.initialize( CONTENT_EDITOR_ID, {
-							tinymce: {
-								menubar: false,
-								statusbar: false,
-								toolbar1: 'bold,italic,bullist,numlist,link,unlink,undo,redo',
-								// No `plugins` override: wp.editor's defaults include the
-								// "wordpress" plugin, which adds the mceContentBody/wp-editor
-								// body classes that core and theme editor styles are scoped to.
-								height: CONTENT_MIN_HEIGHT,
-								// Inherit the host editor's styles (theme add_editor_style()
-								// etc.); wp.editor's defaults only carry core's stylesheets.
-								content_css: editor.settings.content_css,
-								body_class: editor.settings.body_class,
-								init_instance_callback: function () {
-									fitContentEditor( win );
-								},
+						var tinymceSettings = {
+							menubar: false,
+							statusbar: false,
+							toolbar1: 'bold,italic,bullist,numlist,link,unlink,undo,redo',
+							// No `plugins` override (except addTableSupport() below):
+							// wp.editor's defaults include the "wordpress" plugin, which
+							// adds the mceContentBody/wp-editor body classes that core and
+							// theme editor styles are scoped to.
+							height: CONTENT_MIN_HEIGHT,
+							// Inherit the host editor's styles (theme add_editor_style()
+							// etc.); wp.editor's defaults only carry core's stylesheets.
+							content_css: editor.settings.content_css,
+							body_class: editor.settings.body_class,
+							init_instance_callback: function () {
+								fitContentEditor( win );
 							},
+						};
+
+						addTableSupport( editor, tinymceSettings );
+
+						wp.editor.initialize( CONTENT_EDITOR_ID, {
+							tinymce: tinymceSettings,
 							quicktags: {
 								buttons: 'strong,em,link,ul,ol,li,close',
 							},

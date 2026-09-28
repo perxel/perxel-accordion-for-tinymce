@@ -109,6 +109,15 @@ class Shortcode {
 	private static function clean_content( $html ) {
 		$html = preg_replace( '#^\s*(?:</p>|<br\s*/?>)\s*#i', '', $html );
 		$html = preg_replace( '#\s*(?:<p>|<br\s*/?>)\s*$#i', '', $html );
+
+		// Text right after the opening tag arrives with its <p> outside the
+		// shortcode ("text</p>\n<div>..."); reopen it so the </p> has a match
+		// instead of becoming an empty paragraph.
+		$first_close = stripos( $html, '</p>' );
+		if ( false !== $first_close && ! preg_match( '#<p[\s>]#i', substr( $html, 0, $first_close ) ) ) {
+			$html = '<p>' . $html;
+		}
+
 		$html = preg_replace( '#<p>(?:\s|&nbsp;|&\#160;|<br\s*/?>)*</p>\s*#i', '', $html );
 
 		return trim( $html );

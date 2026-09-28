@@ -4,7 +4,7 @@ Tags: accordion, editor, content, shortcode, tinymce
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.5
+Stable tag: 0.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,10 @@ gone.
 3. The accordion on the front end, opening and closing.
 
 == Changelog ==
+
+= 0.0.6 =
+* New: a table button in the dialog's content editor toolbar, shown when the main editor already has a table plugin (for example TinyMCE Advanced or one added by your theme).
+* Fix: text placed before a table (or other block) in the dialog was followed by an empty paragraph on the front end.
 
 = 0.0.5 =
 * Fix: the link button in the dialog's content editor opened its URL popup hidden behind the dialog, so links (and the "Open link in a new tab" option under Link options) could not be added.

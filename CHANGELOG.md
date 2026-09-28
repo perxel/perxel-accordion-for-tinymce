@@ -3,6 +3,11 @@
 All notable changes to this plugin are documented here. This file mirrors the
 `== Changelog ==` section of `readme.txt` (keep the two in sync).
 
+## 0.0.6
+
+* New: a table button in the dialog's content editor toolbar, shown when the main editor already has a table plugin (for example TinyMCE Advanced or one added by your theme).
+* Fix: text placed before a table (or other block) in the dialog was followed by an empty paragraph on the front end.
+
 ## 0.0.5
 
 * Fix: the link button in the dialog's content editor opened its URL popup hidden behind the dialog, so links (and the "Open link in a new tab" option under Link options) could not be added.
