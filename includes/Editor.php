@@ -38,16 +38,12 @@ class Editor {
 	}
 
 	/**
-	 * The dialog's content field is a nested instance built with
-	 * `wp.editor.initialize()`, so it renders as a real (mini) classic
-	 * editor - same skin, same Visual/Code tabs - rather than a bare
-	 * textarea. `wp.editor.initialize()` needs the default editor settings
-	 * that `wp_enqueue_editor()` prints, and core skips that call once its
-	 * own `wp_enqueue_editor` action has fired, so it must run before then.
-	 * It is called from `add_button()` (the `mce_buttons` filter runs only
-	 * while an editor is being built, before the footer enqueue), not on
-	 * every admin screen - screens without an editor load nothing, in
-	 * particular not TinyMCE's skin.
+	 * The dialog's content field is a nested editor, so it needs the Media
+	 * Library (image button) and the dialog styles. It does not enqueue
+	 * `wp_enqueue_editor()`: that loads a second editor bundle and skin that
+	 * restyles the page's other editors, and editor.js derives the nested
+	 * editor's defaults from the host editor instead. Called from
+	 * `add_button()`, so screens without an editor load nothing.
 	 */
 	private function enqueue_editor_assets() {
 		static $done = false;
@@ -57,8 +53,6 @@ class Editor {
 		}
 
 		$done = true;
-
-		wp_enqueue_editor();
 
 		// The dialog's image button opens the Media Library.
 		if ( current_user_can( 'upload_files' ) ) {

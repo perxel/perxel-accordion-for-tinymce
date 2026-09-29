@@ -121,6 +121,21 @@ them.
   Visual tab preview looks like the front end. These filters are
   global by design (so ACF "Full" WYSIWYG fields, widget editors, etc. all pick
   it up) - do not scope by `$editor_id` unless testing turns up a conflict.
+- **Dialog editor must not call `wp_enqueue_editor()`.** The dialog's content
+  field is a nested editor built with `wp.editor.initialize()`, which needs
+  `wp.editor.getDefaultSettings()`. Core only defines that after
+  `wp_enqueue_editor()`, which prints its own default settings (skin
+  `lightgray`) and loads a second editor bundle; the skin's global `.mce-*`
+  rules then restyle every other TinyMCE editor on the page. Instead
+  `ensureEditorDefaults()` in `editor.js` defines `getDefaultSettings()` from
+  the host editor's `editor.settings` (skin, `skin_url`, `content_css`,
+  language), so TinyMCE's stylesheet loader sees the skin already loaded and adds
+  nothing. Leaving the call out with no shim leaves the dialog editor empty
+  (`wp.editor.initialize()` returns silently). The Code tab needs
+  `window.quicktags` (host has a Text tab); without it the dialog is
+  Visual-only. PHP (`Editor::enqueue_editor_assets()`, called from
+  `add_button()` so editor-less admin screens load nothing) enqueues only the
+  Media Library and `pxta-admin.css`.
 
 This plugin has no custom DB table (see the starter's `CLAUDE.md` for the
 `%i`-placeholder rules if one is ever added).

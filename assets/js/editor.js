@@ -159,6 +159,49 @@
 	}
 
 	/**
+	 * wp.editor.initialize() needs wp.editor.getDefaultSettings(), which core
+	 * only defines after wp_enqueue_editor() - a whole second editor bundle and
+	 * skin on the page. The button only exists inside a running editor, so
+	 * derive the defaults from that host editor instead (same skin, content
+	 * CSS, language), minus what must not be nested.
+	 *
+	 * @param {tinymce.Editor} editor Host editor.
+	 */
+	function ensureEditorDefaults( editor ) {
+		wp.editor = wp.editor || {};
+
+		if ( wp.editor.getDefaultSettings ) {
+			return;
+		}
+
+		wp.editor.getDefaultSettings = function () {
+			var host = editor.settings;
+			var external = host.external_plugins || {};
+			var tinymceSettings = {};
+
+			Object.keys( host ).forEach( function ( key ) {
+				if ( ! /^(selector|target|elements|id|setup|init_instance_callback|external_plugins|toolbar\d*|wp_autoresize_on)$/.test( key ) ) {
+					tinymceSettings[ key ] = host[ key ];
+				}
+			} );
+
+			// Plugins the host loads from elsewhere (or that would nest a preview
+			// of the accordion inside the dialog) are not carried over.
+			tinymceSettings.plugins = ( Array.isArray( host.plugins ) ? host.plugins.join( ' ' ) : host.plugins || '' )
+				.split( /[\s,]+/ )
+				.filter( function ( name ) {
+					return name && name !== 'wpview' && name !== SHORTCODE && ! external[ name ];
+				} )
+				.join( ' ' );
+
+			return {
+				tinymce: tinymceSettings,
+				quicktags: { buttons: 'strong,em,link,ul,ol,li,code' },
+			};
+		};
+	}
+
+	/**
 	 * Adds the table button to the nested editor's settings when the host
 	 * editor has a `table` plugin (TinyMCE Advanced, a theme, ...). WordPress
 	 * core does not bundle one, so nothing is added when it is missing.
@@ -266,6 +309,8 @@
 		var size = dialogSize();
 		var win;
 
+		ensureEditorDefaults( editor );
+
 		function onResize() {
 			var next = dialogSize();
 			var rect = win.layoutRect();
@@ -340,11 +385,11 @@
 						addTableSupport( editor, tinymceSettings );
 						addImageSupport( tinymceSettings );
 
+						// The Code tab needs quicktags.js, which the host only loads
+						// when it has a Text tab; without it, a Visual-only editor.
 						wp.editor.initialize( CONTENT_EDITOR_ID, {
 							tinymce: tinymceSettings,
-							quicktags: {
-								buttons: 'strong,em,link,ul,ol,li,close',
-							},
+							quicktags: window.quicktags ? { buttons: 'strong,em,link,ul,ol,li,close' } : false,
 							mediaButtons: false,
 						} );
 					},
