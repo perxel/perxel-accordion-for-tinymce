@@ -56,7 +56,7 @@ jobs:
         run: |
           TAG="${{ github.event.release.tag_name || github.event.inputs.tag }}"
           TAG="${TAG#v}"
-          VER="$(grep -oE "Version:[[:space:]]*[0-9.]+" perxel-tinymce-accordion.php | grep -oE "[0-9.]+")"
+          VER="$(grep -oE "Version:[[:space:]]*[0-9.]+" perxel-accordion-for-tinymce.php | grep -oE "[0-9.]+")"
           echo "tag=$TAG  plugin version=$VER"
           if [ "$TAG" != "$VER" ]; then
             echo "::error::Tag ($TAG) does not match the plugin Version header ($VER). Bump the version before tagging."
@@ -67,7 +67,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.release.tag_name || github.event.inputs.tag }}
-          files: dist/perxel-tinymce-accordion.zip
+          files: dist/perxel-accordion-for-tinymce.zip
           fail_on_unmatched_files: true
 
   deploy:
@@ -89,7 +89,7 @@ jobs:
           TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
         run: |
           TAG="${TAG#v}"
-          VER="$(grep -oE "Version:[[:space:]]*[0-9.]+" perxel-tinymce-accordion.php | grep -oE "[0-9.]+")"
+          VER="$(grep -oE "Version:[[:space:]]*[0-9.]+" perxel-accordion-for-tinymce.php | grep -oE "[0-9.]+")"
           STABLE="$(grep -oE "Stable tag:[[:space:]]*[0-9.]+" readme.txt | grep -oE "[0-9.]+$")"
           echo "tag=$TAG  plugin version=$VER  stable tag=$STABLE"
           if [ "$TAG" != "$VER" ] || [ "$VER" != "$STABLE" ]; then
@@ -111,5 +111,5 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SLUG: perxel-tinymce-accordion
+          SLUG: perxel-accordion-for-tinymce
           VERSION: ${{ steps.version.outputs.version }}

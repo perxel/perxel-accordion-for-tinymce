@@ -3,7 +3,7 @@
  * Uninstall cleanup. Runs only when the plugin is deleted from the Plugins
  * screen.
  *
- * @package Perxel_Tinymce_Accordion
+ * @package Perxel_Accordion_For_Tinymce
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {

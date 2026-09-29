@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name:       Perxel TinyMCE Accordion
- * Plugin URI:        https://perxel.com/products/perxel-tinymce-accordion
+ * Plugin Name:       Perxel Accordion for TinyMCE
+ * Plugin URI:        https://perxel.com/products/perxel-accordion-for-tinymce
  * Description:       Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
  * Version:           0.0.6
  * Requires at least: 6.5
@@ -10,9 +10,9 @@
  * Author URI:        https://perxel.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       perxel-tinymce-accordion
+ * Text Domain:       perxel-accordion-for-tinymce
  *
- * @package Perxel_Tinymce_Accordion
+ * @package Perxel_Accordion_For_Tinymce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,21 +27,21 @@ define( 'PXTA_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 /**
  * Human-readable product name. A brand name, deliberately not translated.
  */
-define( 'PXTA_NAME', 'Perxel TinyMCE Accordion' );
+define( 'PXTA_NAME', 'Perxel Accordion for TinyMCE' );
 
 /**
- * PSR-4-ish autoloader for Perxel_Tinymce_Accordion\* -> includes/*.php. The
- * namespace root matches the slug (perxel-tinymce-accordion ->
- * Perxel_Tinymce_Accordion) so WordPress Plugin Check accepts it as the
+ * PSR-4-ish autoloader for Perxel_Accordion_For_Tinymce\* -> includes/*.php. The
+ * namespace root matches the slug (perxel-accordion-for-tinymce ->
+ * Perxel_Accordion_For_Tinymce) so WordPress Plugin Check accepts it as the
  * plugin prefix with no suppression.
  */
 spl_autoload_register(
 	static function ( $class_name ) {
-		if ( strpos( $class_name, 'Perxel_Tinymce_Accordion\\' ) !== 0 ) {
+		if ( strpos( $class_name, 'Perxel_Accordion_For_Tinymce\\' ) !== 0 ) {
 			return;
 		}
 
-		$relative = substr( $class_name, strlen( 'Perxel_Tinymce_Accordion\\' ) );
+		$relative = substr( $class_name, strlen( 'Perxel_Accordion_For_Tinymce\\' ) );
 		$path     = PXTA_DIR . '/includes/' . str_replace( '\\', '/', $relative ) . '.php';
 
 		if ( is_readable( $path ) ) {
@@ -55,6 +55,6 @@ add_action(
 	static function () {
 		// Translations for a wordpress.org-hosted plugin load automatically since
 		// WP 4.6 - no load_plugin_textdomain() call needed.
-		Perxel_Tinymce_Accordion\Plugin::instance()->boot();
+		Perxel_Accordion_For_Tinymce\Plugin::instance()->boot();
 	}
 );

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Perxel TinyMCE Accordion">
-	<description>Coding standards for the Perxel TinyMCE Accordion plugin.</description>
+<ruleset name="Perxel Accordion for TinyMCE">
+	<description>Coding standards for the Perxel Accordion for TinyMCE plugin.</description>
 
 	<file>.</file>
 
@@ -57,7 +57,7 @@
 				<element value="PXTA"/>
 				<!-- Namespace root = slug in Ucfirst_Snake form, so Plugin Check
 				     (which does not read this file) accepts it too. -->
-				<element value="Perxel_Tinymce_Accordion"/>
+				<element value="Perxel_Accordion_For_Tinymce"/>
 			</property>
 		</properties>
 	</rule>
@@ -101,7 +101,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="perxel-tinymce-accordion"/>
+				<element value="perxel-accordion-for-tinymce"/>
 			</property>
 		</properties>
 	</rule>
