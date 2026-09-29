@@ -17,7 +17,7 @@ class Editor {
 		add_filter( 'mce_buttons', array( $this, 'add_button' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_plugin' ) );
 		add_filter( 'mce_css', array( $this, 'add_editor_css' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_editor_assets' ) );
+		add_action( 'wp_enqueue_editor', array( $this, 'enqueue_editor_assets' ) );
 	}
 
 	/**
@@ -42,16 +42,17 @@ class Editor {
 	 * The dialog's content field is a nested instance built with
 	 * `wp.editor.initialize()`, so it renders as a real (mini) classic
 	 * editor - same skin, same Visual/Code tabs - rather than a bare
-	 * textarea. `wp.editor.initialize()` needs the scripts this enqueues;
-	 * most screens that already show our button have them, but this
-	 * guarantees it for contexts (e.g. some ACF field setups) that don't.
+	 * textarea. Hooked to `wp_enqueue_editor`, which core fires only when an
+	 * editor is actually being printed, so admin screens without an editor
+	 * (and without our button) load nothing - in particular not TinyMCE's
+	 * skin. Editor screens already have the editor scripts; this adds the
+	 * Media Library (for contexts such as ACF fields, which have no media
+	 * button) and the dialog styles.
 	 */
 	public function enqueue_editor_assets() {
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return;
 		}
-
-		wp_enqueue_editor();
 
 		// The dialog's image button opens the Media Library.
 		if ( current_user_can( 'upload_files' ) ) {
