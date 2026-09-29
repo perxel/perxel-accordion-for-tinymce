@@ -353,6 +353,13 @@
 			onsubmit: function ( e ) {
 				var content = wp.editor.getContent( CONTENT_EDITOR_ID );
 
+				// Using the nested editor (its toolbar, the media modal) makes it
+				// tinymce.activeEditor, and wp.mce.views updates whichever editor is
+				// active, so hand that back to the host before saving.
+				if ( tinymce.EditorManager && tinymce.EditorManager.setActive ) {
+					tinymce.EditorManager.setActive( editor );
+				}
+
 				onSave( {
 					title: e.data.title || '',
 					titleTag: e.data.title_tag,
