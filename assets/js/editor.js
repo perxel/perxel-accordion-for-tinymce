@@ -199,6 +199,54 @@
 	}
 
 	/**
+	 * Adds an image button to the nested editor that opens the WordPress Media
+	 * Library and inserts the chosen image. Skipped when wp.media is not on the
+	 * page (Editor::enqueue_editor_assets() enqueues it for users who can upload).
+	 *
+	 * @param {Object} settings Nested editor's tinymce settings, mutated.
+	 */
+	function addImageSupport( settings ) {
+		if ( ! wp.media ) {
+			return;
+		}
+
+		settings.toolbar1 += ',pxta_image';
+		settings.setup = function ( nested ) {
+			nested.addButton( 'pxta_image', {
+				title: 'Add image',
+				icon: 'image',
+				onclick: function () {
+					var frame = wp.media( {
+						title: 'Insert image',
+						button: { text: 'Insert image' },
+						library: { type: 'image' },
+						multiple: false,
+					} );
+
+					frame.on( 'select', function () {
+						var attachment = frame.state().get( 'selection' ).first();
+						var display = frame.state().display( attachment ).toJSON();
+						var data = attachment.toJSON();
+						var sizes = data.sizes || {};
+						var src = ( sizes[ display.size ] || {} ).url || data.url;
+						var img = document.createElement( 'img' );
+
+						img.src = src;
+						img.alt = data.alt || '';
+						if ( data.id ) {
+							img.className = 'wp-image-' + data.id;
+						}
+
+						nested.insertContent( img.outerHTML );
+					} );
+
+					frame.open();
+				},
+			} );
+		};
+	}
+
+	/**
 	 * Opens the accordion dialog, pre-filled with the given values, and calls
 	 * onSave( values ) when the user confirms. Shared by the insert button and
 	 * the Visual tab preview's edit action, so editing an existing accordion
@@ -290,6 +338,7 @@
 						};
 
 						addTableSupport( editor, tinymceSettings );
+						addImageSupport( tinymceSettings );
 
 						wp.editor.initialize( CONTENT_EDITOR_ID, {
 							tinymce: tinymceSettings,

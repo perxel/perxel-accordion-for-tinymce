@@ -114,3 +114,8 @@
 .pxta-accordion__content-inner > *:last-child {
     margin-bottom: 0;
 }
+
+.pxta-accordion__content-inner img {
+    max-width: 100%;
+    height: auto;
+}

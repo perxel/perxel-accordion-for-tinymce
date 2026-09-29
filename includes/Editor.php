@@ -53,6 +53,11 @@ class Editor {
 
 		wp_enqueue_editor();
 
+		// The dialog's image button opens the Media Library.
+		if ( current_user_can( 'upload_files' ) ) {
+			wp_enqueue_media();
+		}
+
 		$css = PXTA_DIR . '/assets/css/pxta-admin.css';
 
 		wp_enqueue_style(
