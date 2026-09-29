@@ -5,8 +5,8 @@ document (see "Documentation rules" below).
 
 ## What this is
 
-`perxel-tinymce-accordion` - a **public** WordPress plugin (repo
-`github.com/perxel/perxel-tinymce-accordion`, WordPress.org slug `perxel-tinymce-accordion`,
+`perxel-accordion-for-tinymce` - a **public** WordPress plugin (repo
+`github.com/perxel/perxel-accordion-for-tinymce`, WordPress.org slug `perxel-accordion-for-tinymce`,
 published under the `phucbm` .org account, branded Perxel).
 
 It was scaffolded from
@@ -62,7 +62,7 @@ Every Perxel plugin follows these; they are owned by the starter.
 ## Layout
 
 ```
-perxel-tinymce-accordion.php   Main file: header, constants, autoloader, boot
+perxel-accordion-for-tinymce.php   Main file: header, constants, autoloader, boot
 uninstall.php                  No-op - the plugin stores no options and no custom tables
 includes/Plugin.php            Singleton, boot() wires Shortcode + Editor
 includes/Shortcode.php         add_shortcode(), the pxta_accordion_html filter,
@@ -127,14 +127,14 @@ This plugin has no custom DB table (see the starter's `CLAUDE.md` for the
 
 ## Conventions
 
-- **Namespace** `Perxel_Tinymce_Accordion\` - the slug (`perxel-tinymce-accordion`) in
+- **Namespace** `Perxel_Accordion_For_Tinymce\` - the slug (`perxel-accordion-for-tinymce`) in
   `Ucfirst_Snake` form, so `WordPress.NamingConventions.PrefixAllGlobals`
   accepts it as the plugin prefix (Plugin Check does not read `phpcs.xml.dist`,
   so a `Vendor\Package`-style namespace would be flagged there). Sub-namespaces
-  are fine (`Perxel_Tinymce_Accordion\Admin\Foo` -> `includes/Admin/Foo.php`). Hooks,
+  are fine (`Perxel_Accordion_For_Tinymce\Admin\Foo` -> `includes/Admin/Foo.php`). Hooks,
   option keys and CSS classes stay `pxta_` / `pxta-`; constants `PXTA_`. Product
   name is the constant `PXTA_NAME` (no rebrand option).
-- **Text domain** `perxel-tinymce-accordion` (= the slug). No JS strings need
+- **Text domain** `perxel-accordion-for-tinymce` (= the slug). No JS strings need
   `wp.i18n` here - `editor.js`'s button/dialog labels are short and in English
   only for now; add `wp_set_script_translations()` if that changes.
 - **Escape at output, no blanket suppressions.** Never `phpcs:disable` a
@@ -166,13 +166,38 @@ There are no automated tests and no WP in the lint environment - `phpcs` and
 `php -l` verify syntax and style only. Behaviour must be smoke-tested on a real
 WordPress site.
 
+## Naming a plugin
+
+Decide the name **before** scaffolding: the slug becomes the folder, main file,
+text domain, namespace (`Ucfirst_Snake`), zip and repo, so renaming later touches
+everything. Rules from the .org review team (perxel-tinymce-accordion, 2026-09-29):
+
+- Pattern: `Perxel <Distinct Thing> for <Third-party>` - our brand first, the
+  third-party trademark/project name last, only after `for` / `with`. Never first
+  (`TinyMCE Accordion`), never mid-name (`Perxel TinyMCE Accordion`), never blended
+  (`TinyPress`). The slug follows the same order (`perxel-accordion-for-tinymce`).
+- "Perxel" is our own mark and the distinguishing term; the reviewer AI still
+  lists it as a "potential trademark" - say in the reply that we own it.
+- Adding a generic word (Simple, Easy, Advanced, Pro) does not make a name
+  distinctive; the brand prefix does. Search the plugin directory + web for the
+  name and its parts before submitting.
+- The same rule covers `Plugin URI`, repo name, contributor display name and any
+  logo or wordmark in the icon/banner - no third-party logos, and never imply
+  endorsement.
+- If a third-party name appears, add a one-line non-affiliation notice to
+  `readme.txt` and `README.md` ("X is a trademark of Y. This plugin is independent
+  and not affiliated with or endorsed by Y.").
+- A rename is a new slug reservation: reply to the review email asking for it,
+  upload a new zip at the "Add your plugin" page, keep the reply short and do not
+  list the changes.
+
 ## WordPress.org / Plugin Check compliance
 
 Rules that are not obvious and cost real time when re-derived per plugin:
 
 | Rule | Why |
 |---|---|
-| Namespace root = slug in `Ucfirst_Snake` (`Perxel_Tinymce_Accordion`) | `PrefixAllGlobals` accepts it as the prefix; a `Vendor\Package` namespace is flagged (`NonPrefixedNamespaceFound`) and Plugin Check ignores the `phpcs.xml.dist` prefix list |
+| Namespace root = slug in `Ucfirst_Snake` (`Perxel_Accordion_For_Tinymce`) | `PrefixAllGlobals` accepts it as the prefix; a `Vendor\Package` namespace is flagged (`NonPrefixedNamespaceFound`) and Plugin Check ignores the `phpcs.xml.dist` prefix list |
 | No `load_plugin_textdomain()` | .org auto-loads translations (slug == text domain); calling it on `plugins_loaded` is "too early" on WP 6.7+ |
 | No `phpcs:disable WordPress.Security.*` anywhere in `includes/` or the main file, and no `EscapeOutput` suppression at all: escape late with `esc_html()` / `esc_attr()` at the point of output | Reviewers flag file-wide security disables (perxel-image-optimizer, perxel-ai-translate 2026-09-22) and per-line "escaped earlier" echoes (perxel-ai-translate 2026-09-23); `bin/check-suppressions.sh` enforces both |
 | `set_time_limit()` etc.: `function_exists()` guard + inline `// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- <reason>` | discouraged-function warning |
@@ -188,12 +213,12 @@ Any suppression for a documented false positive goes in *both* places -
 
 ## Releasing
 
-1. Bump the version in `perxel-tinymce-accordion.php` (header + `PXTA_VERSION`) and
+1. Bump the version in `perxel-accordion-for-tinymce.php` (header + `PXTA_VERSION`) and
    `readme.txt` (`Stable tag`); add a changelog entry to both `readme.txt` and
    `CHANGELOG.md`. Merge to `main` first. Tag, plugin `Version:` and `Stable tag`
    must all be equal or the deploy fails before touching SVN.
 2. Create the tag on `main` and publish a GitHub Release. `release.yml`'s `zip`
-   job attaches `perxel-tinymce-accordion.zip`; the `deploy` job commits trunk +
+   job attaches `perxel-accordion-for-tinymce.zip`; the `deploy` job commits trunk +
    `tags/<version>` + `.wordpress-org/` (-> SVN `assets/`) with the SHA-pinned
    10up action. It only runs when the repo variable `DEPLOY_TO_WPORG` is `true`.
 3. Verify `https://wordpress.org/plugins/<slug>/` and

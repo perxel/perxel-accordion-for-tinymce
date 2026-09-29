@@ -1,6 +1,6 @@
-# Perxel TinyMCE Accordion
+# Perxel Accordion for TinyMCE
 
-![Perxel TinyMCE Accordion](.claude/assets-src/banner-master.jpg)
+![Perxel Accordion for TinyMCE](.claude/assets-src/banner-master.jpg)
 
 Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it on the front end as an accessible accordion.
 
@@ -8,8 +8,8 @@ The classic editor has no built-in way to add a collapsible "read more" section 
 
 ![Inserting an accordion in the classic editor](.github/assets/demo.gif)
 
-- [Download the latest release](https://github.com/perxel/perxel-tinymce-accordion/releases)
-- Report an issue: [github.com/perxel/perxel-tinymce-accordion](https://github.com/perxel/perxel-tinymce-accordion)
+- [Download the latest release](https://github.com/perxel/perxel-accordion-for-tinymce/releases)
+- Report an issue: [github.com/perxel/perxel-accordion-for-tinymce](https://github.com/perxel/perxel-accordion-for-tinymce)
 
 ## What you get
 
@@ -38,7 +38,7 @@ The button shows up in the post and page editor, the widget editors, and any Adv
 
 ## Installation
 
-1. In the WordPress admin go to **Plugins -> Add New -> Upload Plugin**, choose the `perxel-tinymce-accordion.zip` file and click **Install Now**. Alternatively, copy the `perxel-tinymce-accordion` folder into `wp-content/plugins/` and install it from the **Plugins** screen.
+1. In the WordPress admin go to **Plugins -> Add New -> Upload Plugin**, choose the `perxel-accordion-for-tinymce.zip` file and click **Install Now**. Alternatively, copy the `perxel-accordion-for-tinymce` folder into `wp-content/plugins/` and install it from the **Plugins** screen.
 2. Click **Activate**.
 3. Open a post or page in the classic editor - the **Accordion** button is now in the toolbar, at the end of the first row.
 
@@ -87,6 +87,8 @@ This plugin stores no settings and creates no database tables, so there is nothi
 ## Data and external services
 
 This plugin stores no settings and creates no database tables, and it does not contact any external service. It sends nothing off your site and adds no tracking. Deleting it removes only its own files.
+
+TinyMCE is a trademark of Tiny Technologies, Inc. This plugin is independent and is not affiliated with, endorsed by or sponsored by Tiny Technologies, Inc.
 
 ## License
 

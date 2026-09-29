@@ -1,6 +1,6 @@
 <?php
 
-namespace Perxel_Tinymce_Accordion;
+namespace Perxel_Accordion_For_Tinymce;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

@@ -1,4 +1,4 @@
-=== Perxel TinyMCE Accordion ===
+=== Perxel Accordion for TinyMCE ===
 Contributors: phucbm
 Tags: accordion, editor, content, shortcode, tinymce
 Requires at least: 6.5
@@ -13,7 +13,7 @@ Adds an "Insert Accordion" button to the classic TinyMCE editor and renders it o
 == Description ==
 
 The classic WordPress editor has no way to add a collapsible "show more"
-section to a post. Perxel TinyMCE Accordion adds an **Insert Accordion** button
+section to a post. Perxel Accordion for TinyMCE adds an **Insert Accordion** button
 to the editor toolbar, so an accordion takes a couple of clicks and stays in
 your post content as a plain, readable shortcode.
 
@@ -54,13 +54,15 @@ To wrap the title in a heading or paragraph, add `title_tag` (one of `p`,
 [pxta_accordion title="What does it cost?" title_tag="h3"]Nothing at all - it is free.[/pxta_accordion]
 ```
 
+TinyMCE is a trademark of Tiny Technologies, Inc. This plugin is independent and is not affiliated with, endorsed by or sponsored by Tiny Technologies, Inc.
+
 == External services ==
 
 This plugin does not connect to any external services.
 
 == Installation ==
 
-1. In the WordPress admin go to **Plugins -> Add New -> Upload Plugin**, choose the `perxel-tinymce-accordion.zip` file and click **Install Now**. Alternatively, copy the `perxel-tinymce-accordion` folder into `wp-content/plugins/` and install it from the **Plugins** screen.
+1. In the WordPress admin go to **Plugins -> Add New -> Upload Plugin**, choose the `perxel-accordion-for-tinymce.zip` file and click **Install Now**. Alternatively, copy the `perxel-accordion-for-tinymce` folder into `wp-content/plugins/` and install it from the **Plugins** screen.
 2. Click **Activate**.
 3. Open a post or page in the classic editor - the **Accordion** button is now in the toolbar, at the end of the first row.
 
