@@ -115,7 +115,11 @@ gone.
 == Changelog ==
 
 = 0.0.7 =
+* Change: renamed to Perxel Accordion for TinyMCE (slug `perxel-accordion-for-tinymce`). Deactivate and delete the old Perxel TinyMCE Accordion plugin before activating this one. Existing `[pxta_accordion]` shortcodes keep working.
 * New: an image button in the dialog's content editor toolbar that opens the Media Library.
+* Fix: the dialog no longer loads a second copy of the editor scripts and skin, which restyled other TinyMCE editors on the same screen.
+* Fix: editor scripts are loaded only when an editor is actually printed, so admin screens without an editor are no longer affected.
+* Fix: saving the dialog now applies to the editor it was opened from, and the inline view toolbar is hidden while the dialog is open and after it closes.
 
 = 0.0.6 =
 * New: a table button in the dialog's content editor toolbar, shown when the main editor already has a table plugin (for example TinyMCE Advanced or one added by your theme).
