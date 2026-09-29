@@ -366,6 +366,10 @@
 					open: !! e.data.open,
 					content: content == null ? initial.content : content,
 				} );
+
+				// The saved accordion replaces the node WordPress's inline view
+				// toolbar was attached to; blur runs its normal hide path.
+				editor.fire( 'blur' );
 			},
 			onclose: function () {
 				window.removeEventListener( 'resize', onResize );

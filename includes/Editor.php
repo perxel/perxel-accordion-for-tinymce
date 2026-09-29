@@ -17,7 +17,6 @@ class Editor {
 		add_filter( 'mce_buttons', array( $this, 'add_button' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_plugin' ) );
 		add_filter( 'mce_css', array( $this, 'add_editor_css' ) );
-		add_action( 'wp_enqueue_editor', array( $this, 'enqueue_editor_assets' ) );
 	}
 
 	/**
@@ -42,17 +41,24 @@ class Editor {
 	 * The dialog's content field is a nested instance built with
 	 * `wp.editor.initialize()`, so it renders as a real (mini) classic
 	 * editor - same skin, same Visual/Code tabs - rather than a bare
-	 * textarea. Hooked to `wp_enqueue_editor`, which core fires only when an
-	 * editor is actually being printed, so admin screens without an editor
-	 * (and without our button) load nothing - in particular not TinyMCE's
-	 * skin. Editor screens already have the editor scripts; this adds the
-	 * Media Library (for contexts such as ACF fields, which have no media
-	 * button) and the dialog styles.
+	 * textarea. `wp.editor.initialize()` needs the default editor settings
+	 * that `wp_enqueue_editor()` prints, and core skips that call once its
+	 * own `wp_enqueue_editor` action has fired, so it must run before then.
+	 * It is called from `add_button()` (the `mce_buttons` filter runs only
+	 * while an editor is being built, before the footer enqueue), not on
+	 * every admin screen - screens without an editor load nothing, in
+	 * particular not TinyMCE's skin.
 	 */
-	public function enqueue_editor_assets() {
-		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+	private function enqueue_editor_assets() {
+		static $done = false;
+
+		if ( $done ) {
 			return;
 		}
+
+		$done = true;
+
+		wp_enqueue_editor();
 
 		// The dialog's image button opens the Media Library.
 		if ( current_user_can( 'upload_files' ) ) {
@@ -77,6 +83,8 @@ class Editor {
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 			return $buttons;
 		}
+
+		$this->enqueue_editor_assets();
 
 		$buttons[] = 'pxta_accordion';
 
