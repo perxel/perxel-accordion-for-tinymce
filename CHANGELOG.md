@@ -3,6 +3,10 @@
 All notable changes to this plugin are documented here. This file mirrors the
 `== Changelog ==` section of `readme.txt` (keep the two in sync).
 
+## 0.0.7
+
+* New: an image button in the dialog's content editor toolbar that opens the Media Library.
+
 ## 0.0.6
 
 * New: a table button in the dialog's content editor toolbar, shown when the main editor already has a table plugin (for example TinyMCE Advanced or one added by your theme).

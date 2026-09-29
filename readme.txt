@@ -4,7 +4,7 @@ Tags: accordion, editor, content, shortcode, tinymce
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.0.6
+Stable tag: 0.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -113,6 +113,9 @@ gone.
 3. The accordion on the front end, opening and closing.
 
 == Changelog ==
+
+= 0.0.7 =
+* New: an image button in the dialog's content editor toolbar that opens the Media Library.
 
 = 0.0.6 =
 * New: a table button in the dialog's content editor toolbar, shown when the main editor already has a table plugin (for example TinyMCE Advanced or one added by your theme).
