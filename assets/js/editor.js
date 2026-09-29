@@ -411,12 +411,10 @@
 					open: !! e.data.open,
 					content: content == null ? initial.content : content,
 				} );
-
-				// The saved accordion replaces the node WordPress's inline view
-				// toolbar was attached to; blur runs its normal hide path.
-				editor.fire( 'blur' );
 			},
 			onclose: function () {
+				// Hides WordPress's inline view toolbar again (see the open call).
+				editor.fire( 'blur' );
 				window.removeEventListener( 'resize', onResize );
 				wp.editor.remove( CONTENT_EDITOR_ID );
 			},
@@ -425,6 +423,10 @@
 		// TinyMCE re-renders the window's own class list, so the wrapper
 		// class goes on the inner .mce-reset element, which it never touches.
 		win.getEl().firstChild.classList.add( WRAPPER_CLASS );
+		// The host's inline view toolbar (edit/remove) is still showing from the
+		// click that opened this dialog, and pxta-admin.css lifts inline toolbars
+		// above the dialog for the link popup; blur runs its normal hide path.
+		editor.fire( 'blur' );
 		// Lets pxta-admin.css lift the link popup (appended to <body>) above the dialog.
 		document.body.classList.add( BODY_OPEN_CLASS );
 		window.addEventListener( 'resize', onResize );
